@@ -14,14 +14,13 @@ public class Deck {
     }
 
     private void makeCards() {
+        this.cards.add(new Card(Special.DOG));
+        this.cards.add(new Card(Special.MAHJONG));
         for (Suit suit : Suit.values()) {
             for (Rank rank : Rank.values()) {
-                this.cards.add(new Card(suit, rank));
+                this.cards.add(new Card(rank, suit));
             }
         }
-        // 특수카드 4장
-        this.cards.add(new Card(Special.MAHJONG));
-        this.cards.add(new Card(Special.DOG));
         this.cards.add(new Card(Special.PHOENIX));
         this.cards.add(new Card(Special.DRAGON));
     }
