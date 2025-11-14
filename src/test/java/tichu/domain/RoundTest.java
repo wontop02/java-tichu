@@ -1,5 +1,6 @@
 package tichu.domain;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
@@ -29,5 +30,18 @@ class RoundTest {
 
         Set<Card> distinctCards = new HashSet<>(cards);
         assertEquals(56, distinctCards.size());
+    }
+
+    @DisplayName("이미 티츄를 불렀는데 또 스몰티츄를 부를 경우 예외가 발생한다")
+    @Test
+    void 이미_티츄를_불렀는데_또_스몰티츄를_부를_경우_예외가_발생한다() {
+        Round round = new Round();
+        Player player = new Player("주영");
+
+        round.addSmallTichu(player);
+
+        assertThatThrownBy(() -> round.addSmallTichu(player))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("이미 티츄를 부른 플레이어입니다: " + player.getName());
     }
 }

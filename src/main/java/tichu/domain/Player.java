@@ -17,6 +17,10 @@ public class Player {
         myCards.addAll(card);
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void sortMyCards() {
         Collections.sort(myCards);
     }
