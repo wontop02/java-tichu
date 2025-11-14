@@ -13,10 +13,16 @@ public class InputValidator {
     private InputValidator() {
     }
 
-    public static void validatePlayerName(String input) {
+    public static List<String> validatePlayerNames(String input) {
         validateNotBlank(input);
         List<String> inputs = validateNotDuplicate(input);
         inputs.forEach(InputValidator::validateEnglishAndKoreanOnly);
+        return inputs;
+    }
+
+    public static List<String> validateTichuCallerName(String input) {
+        validateNotBlank(input);
+        return validateNotDuplicate(input);
     }
 
     private static void validateNotBlank(String input) {
@@ -38,5 +44,4 @@ public class InputValidator {
             throw new IllegalArgumentException(NOT_ENGLISH_AND_KOREAN_ONLY);
         }
     }
-
 }
