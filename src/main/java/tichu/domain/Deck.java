@@ -1,6 +1,7 @@
 package tichu.domain;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import tichu.enums.Rank;
 import tichu.enums.Special;
@@ -23,6 +24,16 @@ public class Deck {
         }
         this.cards.add(new Card(Special.PHOENIX));
         this.cards.add(new Card(Special.DRAGON));
+    }
+
+    public void shuffle() {
+        Collections.shuffle(cards);
+    }
+
+    public List<Card> deal(int count) {
+        List<Card> dealCards = new ArrayList<>(cards.subList(0, count));
+        cards.subList(0, count).clear();
+        return dealCards;
     }
 
     public List<Card> getCards() {
