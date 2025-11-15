@@ -25,4 +25,13 @@ class InputValidatorTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("중복된 입력은 허용하지 않습니다.");
     }
+
+    @DisplayName("카드 형식이 잘못 입력되면 예외가 발생한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"1s", " 용", ", ", ",1s"})
+    void 카드_형식이_잘못_입력되면_예외가_발생한다(String input) {
+        assertThatThrownBy(() -> InputValidator.validateCardInput(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("카드 형식이 올바르지 않습니다.");
+    }
 }
