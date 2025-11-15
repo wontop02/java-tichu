@@ -6,7 +6,6 @@ import java.util.List;
 
 public class TichuGame {
     private static final String INCORRECT_PLAYER_NUMBER = "참가자 수는 반드시 4명이어야 합니다.";
-    private static final String PLAYER_NOT_FOUND = "잘못된 플레이어 이름이 존재합니다.";
 
     private final List<Player> players;
     private int roundNumber = 0;
@@ -25,14 +24,6 @@ public class TichuGame {
         Round round = new Round(players, direction, red, blue, roundNumber);
         round.settingRound();
         return round;
-    }
-
-    public Player findPlayerByName(String name) {
-        return players.stream()
-                .filter(p -> p.getName().equals(name))
-                .findFirst()
-                .orElseThrow(() ->
-                        new IllegalArgumentException(PLAYER_NOT_FOUND));
     }
 
     private void validatePlayers(List<Player> players) {
