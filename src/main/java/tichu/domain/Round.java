@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Round {
-    private static final String ALREADY_CALLED_TICHU = "이미 티츄를 부른 플레이어입니다: ";
+    private static final String ALREADY_CALLED_TICHU = "이미 티츄를 부른 플레이어가 존재합니다.";
 
     private final List<Player> players;
 
@@ -48,7 +48,7 @@ public class Round {
 
     public void addSmallTichu(Player player) {
         if (largeTichu.contains(player) || smallTichu.contains(player)) {
-            throw new IllegalArgumentException(ALREADY_CALLED_TICHU + player.getName());
+            throw new IllegalArgumentException(ALREADY_CALLED_TICHU);
         }
         smallTichu.add(player);
     }
