@@ -9,15 +9,22 @@ public class TichuGame {
     private static final String PLAYER_NOT_FOUND = "해당 이름의 플레이어를 찾을 수 없습니다: ";
 
     private final List<Player> players;
-    private final List<Player> direction = new ArrayList<>();
-    private final List<Player> red = new ArrayList<>();
-    private final List<Player> blue = new ArrayList<>();
+    private int roundNumber = 0;
 
     public TichuGame(List<Player> players) {
         validatePlayers(players);
         this.players = players;
-        decisionDirection(players);
-        decisionTeams();
+    }
+
+    public Round startRound() {
+        roundNumber++;
+        List<Player> direction = decisionDirection(players);
+        List<Player> red = List.of(direction.get(0), direction.get(2));
+        List<Player> blue = List.of(direction.get(1), direction.get(3));
+
+        Round round = new Round(players, direction, red, blue, roundNumber);
+        round.settingRound();
+        return round;
     }
 
     public Player findPlayerByName(String name) {
@@ -34,15 +41,9 @@ public class TichuGame {
         }
     }
 
-    private void decisionDirection(List<Player> players) {
-        direction.addAll(players);
+    private static List<Player> decisionDirection(List<Player> players) {
+        List<Player> direction = new ArrayList<>(players);
         Collections.shuffle(direction);
-    }
-
-    private void decisionTeams() {
-        red.add(direction.get(0));
-        red.add(direction.get(2));
-        blue.add(direction.get(1));
-        blue.add(direction.get(3));
+        return direction;
     }
 }

@@ -17,7 +17,8 @@ class RoundTest {
         List<Player> players = List.of(
                 new Player("하나"), new Player("둘"),
                 new Player("셋"), new Player("넷"));
-        Round round = new Round(players);
+        TichuGame game = new TichuGame(players);
+        Round round = game.startRound();
 
         round.settingRound();
         round.dealCards8();
@@ -40,7 +41,8 @@ class RoundTest {
         List<Player> players = List.of(
                 player, new Player("둘"),
                 new Player("셋"), new Player("넷"));
-        Round round = new Round(players);
+        TichuGame game = new TichuGame(players);
+        Round round = game.startRound();
 
         round.addSmallTichu(player);
 
