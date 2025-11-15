@@ -64,6 +64,16 @@ public class Round {
         }
     }
 
+    public List<Player> getDirection() {
+        return List.copyOf(direction);
+    }
+
+    public void tradeCards(List<List<Card>> received) {
+        for (int i = 0; i < 4; i++) {
+            direction.get(i).addMyCards(received.get(i));
+        }
+    }
+
     public void validatePlayerNames(List<String> names) {
         names.forEach(this::findPlayerByName);
     }

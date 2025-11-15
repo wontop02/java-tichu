@@ -17,6 +17,10 @@ public class Player {
         myCards.addAll(card);
     }
 
+    public void removeMyCards(List<Card> cards) {
+        myCards.removeAll(cards);
+    }
+
     public String getName() {
         return name;
     }
