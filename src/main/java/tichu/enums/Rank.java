@@ -1,5 +1,7 @@
 package tichu.enums;
 
+import java.util.Arrays;
+
 public enum Rank {
     TWO("2", 2),
     THREE("3", 3),
@@ -15,6 +17,8 @@ public enum Rank {
     KING("K", 13),
     ACE("A", 14);
 
+    private static final String INVALID_RANK = "해당 카드 등급은 존재하지 않습니다.";
+
     private final String rank;
     private final int priority;
 
@@ -29,5 +33,12 @@ public enum Rank {
 
     public int getPriority() {
         return priority;
+    }
+
+    public static Rank valueOfRank(String rank) {
+        return Arrays.stream(values())
+                .filter(s -> s.getRank().equals(rank))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(INVALID_RANK));
     }
 }
