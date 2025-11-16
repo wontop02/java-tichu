@@ -181,7 +181,7 @@ public class CombinationEvaluator {
         if (!allPairs) {
             return false;
         }
-        return IntStream.iterate(0, i -> i < cards.size() - 1, i -> i + 2)
+        return IntStream.iterate(0, i -> i < cards.size() - 2, i -> i + 2)
                 .allMatch(i ->
                         cards.get(i + 2).getRankPriority()
                                 - cards.get(i).getRankPriority() == 1);

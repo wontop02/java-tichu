@@ -55,6 +55,10 @@ public class Card implements Comparable<Card> {
 
     public int getRankPriority() {
         if (isSpecial()) {
+            if (special == Special.MAHJONG) {
+                // 1만 rank 1로 반환
+                return 1;
+            }
             throw new IllegalArgumentException(CARD_RANK_NOT_EXIST);
         }
         return rank.getPriority();
