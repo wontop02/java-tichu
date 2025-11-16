@@ -6,7 +6,9 @@ public enum Suit {
     SPADE("s", 1),
     DIAMOND("d", 2),
     HEART("h", 3),
-    CLUB("c", 4);
+    CLUB("c", 4),
+    // 봉이 대체된 경우
+    NONE("", 5);
 
     private static final String INVALID_SUIT = "해당 카드 무늬는 존재하지 않습니다.";
 
