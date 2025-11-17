@@ -2,8 +2,8 @@ package tichu.domain;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static tichu.domain.CombinationType.FULL_HOUSE;
-import static tichu.domain.CombinationType.STRAIGHT;
+import static tichu.enums.CombinationType.FULL_HOUSE;
+import static tichu.enums.CombinationType.STRAIGHT;
 
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;

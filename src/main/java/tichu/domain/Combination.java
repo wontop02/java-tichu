@@ -1,9 +1,10 @@
 package tichu.domain;
 
-import static tichu.domain.CombinationType.BOMB;
-import static tichu.domain.CombinationType.SINGLE;
+import static tichu.enums.CombinationType.BOMB;
+import static tichu.enums.CombinationType.SINGLE;
 
 import java.util.List;
+import tichu.enums.CombinationType;
 import tichu.enums.Special;
 
 // 낸 패 조합

@@ -1,5 +1,7 @@
 package tichu.domain;
 
+import tichu.enums.CombinationType;
+
 public class CombinationResult {
     private final CombinationType type;
     private final Card topCard;

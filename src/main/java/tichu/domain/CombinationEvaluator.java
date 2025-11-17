@@ -1,12 +1,12 @@
 package tichu.domain;
 
-import static tichu.domain.CombinationType.BOMB;
-import static tichu.domain.CombinationType.FULL_HOUSE;
-import static tichu.domain.CombinationType.PAIR;
-import static tichu.domain.CombinationType.PAIR_SEQUENCE;
-import static tichu.domain.CombinationType.SINGLE;
-import static tichu.domain.CombinationType.STRAIGHT;
-import static tichu.domain.CombinationType.TRIPLE;
+import static tichu.enums.CombinationType.BOMB;
+import static tichu.enums.CombinationType.FULL_HOUSE;
+import static tichu.enums.CombinationType.PAIR;
+import static tichu.enums.CombinationType.PAIR_SEQUENCE;
+import static tichu.enums.CombinationType.SINGLE;
+import static tichu.enums.CombinationType.STRAIGHT;
+import static tichu.enums.CombinationType.TRIPLE;
 
 import java.util.ArrayList;
 import java.util.Collections;

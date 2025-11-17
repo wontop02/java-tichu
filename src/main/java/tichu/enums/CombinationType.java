@@ -1,4 +1,4 @@
-package tichu.domain;
+package tichu.enums;
 
 public enum CombinationType {
     SINGLE,
