@@ -7,5 +7,6 @@ public enum CombinationType {
     FULL_HOUSE,
     STRAIGHT,
     PAIR_SEQUENCE,
-    BOMB,
+    BOMB_FOUR_CARD,
+    BOMB_STRAIGHT_FLUSH,
 }

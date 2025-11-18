@@ -1,6 +1,7 @@
 package tichu.domain;
 
-import static tichu.enums.CombinationType.BOMB;
+import static tichu.enums.CombinationType.BOMB_FOUR_CARD;
+import static tichu.enums.CombinationType.BOMB_STRAIGHT_FLUSH;
 import static tichu.enums.CombinationType.FULL_HOUSE;
 import static tichu.enums.CombinationType.PAIR;
 import static tichu.enums.CombinationType.PAIR_SEQUENCE;
@@ -43,13 +44,13 @@ public class CombinationEvaluator {
     }
 
     // 봉이 포함되어 있을 경우 조합 판단
-    private static CombinationResult evaluateWithPhoenix(List<Card> cards) {
+    public static CombinationResult evaluateWithPhoenix(List<Card> cards) {
         List<Rank> ranks = new ArrayList<>(List.of(Rank.values()));
         Collections.reverse(ranks);
         for (Rank substituteRank : ranks) {
             List<Card> substituteCards = substitutePhoenix(cards, substituteRank);
             CombinationResult result = evaluateNormalCombination(substituteCards);
-            if (result == null || result.getType() == BOMB) {
+            if (result == null || result.getType() == BOMB_FOUR_CARD || result.getType() == BOMB_STRAIGHT_FLUSH) {
                 continue;
             }
             return result;
@@ -57,11 +58,11 @@ public class CombinationEvaluator {
         return null;
     }
 
-    private static boolean containsPhoenix(List<Card> cards) {
+    public static boolean containsPhoenix(List<Card> cards) {
         return cards.stream().anyMatch(Card::isPhoenix);
     }
 
-    private static List<Card> substitutePhoenix(List<Card> cards, Rank substituteRank) {
+    public static List<Card> substitutePhoenix(List<Card> cards, Rank substituteRank) {
         List<Card> substituteCards = new ArrayList<>();
         for (Card card : cards) {
             if (card.isPhoenix()) {
@@ -92,8 +93,11 @@ public class CombinationEvaluator {
         if (isPairSequence(cards)) {
             return new CombinationResult(PAIR_SEQUENCE, cards.getLast());
         }
-        if (isBomb(cards)) {
-            return new CombinationResult(BOMB, cards.getLast());
+        if (isBombFourCord(cards)) {
+            return new CombinationResult(BOMB_FOUR_CARD, cards.getLast());
+        }
+        if (isBombStraightFlush(cards)) {
+            return new CombinationResult(BOMB_STRAIGHT_FLUSH, cards.getLast());
         }
         return null;
     }
@@ -187,10 +191,14 @@ public class CombinationEvaluator {
                                 - cards.get(i).getRankPriority() == 1);
     }
 
-    private static boolean isBomb(List<Card> cards) {
+    private static boolean isBombFourCord(List<Card> cards) {
         if (cards.size() == 4) {
             return cards.get(0).getRank() == cards.get(3).getRank();
         }
+        return false;
+    }
+
+    private static boolean isBombStraightFlush(List<Card> cards) {
         for (Card card : cards) {
             if (card.isSpecial()) {
                 return false;

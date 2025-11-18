@@ -1,6 +1,7 @@
 package tichu.domain;
 
-import static tichu.enums.CombinationType.BOMB;
+import static tichu.enums.CombinationType.BOMB_FOUR_CARD;
+import static tichu.enums.CombinationType.BOMB_STRAIGHT_FLUSH;
 import static tichu.enums.CombinationType.SINGLE;
 
 import java.util.List;
@@ -21,12 +22,10 @@ public class Combination {
 
     // 조합 간 비교
     public int compareTo(Combination other) {
-        if (this.combinationResult.getType() == BOMB
-                && other.combinationResult.getType() != BOMB) {
+        if (this.isBomb() && !other.isBomb()) {
             return 1;
         }
-        if (this.combinationResult.getType() != BOMB
-                && other.combinationResult.getType() == BOMB) {
+        if (!this.isBomb() && other.isBomb()) {
             return -1;
         }
 
@@ -40,11 +39,24 @@ public class Combination {
         return combinationResult.getType();
     }
 
+    public List<Card> getCards() {
+        return List.copyOf(cards);
+    }
+
+    public Card getTopCard() {
+        return combinationResult.getTopCard();
+    }
+
+    public boolean isBomb() {
+        return (combinationResult.getType() == BOMB_FOUR_CARD)
+                || (combinationResult.getType() == BOMB_STRAIGHT_FLUSH);
+    }
+
     private int compareSameType(Combination other) {
         if (this.combinationResult.getType() == SINGLE) {
             return compareSingle(other);
         }
-        if (this.combinationResult.getType() == BOMB) {
+        if (isBomb()) {
             return compareBomb(other);
         }
         return compareByTopCard(other);
