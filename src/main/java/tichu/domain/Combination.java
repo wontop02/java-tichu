@@ -6,6 +6,7 @@ import static tichu.enums.CombinationType.SINGLE;
 
 import java.util.List;
 import tichu.enums.CombinationType;
+import tichu.enums.Rank;
 import tichu.enums.Special;
 
 // 낸 패 조합
@@ -50,6 +51,14 @@ public class Combination {
     public boolean isBomb() {
         return (combinationResult.getType() == BOMB_FOUR_CARD)
                 || (combinationResult.getType() == BOMB_STRAIGHT_FLUSH);
+    }
+
+    public boolean hasMahjong() {
+        return cards.stream().anyMatch(Card::isMahjong);
+    }
+
+    public boolean hasCallRank(Rank rank) {
+        return cards.stream().anyMatch(card -> card.getRank() == rank);
     }
 
     private int compareSameType(Combination other) {
