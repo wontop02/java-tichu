@@ -86,17 +86,12 @@ public class Phase {
     }
 
     public void validatePass(Player player) {
-        validateStartPlayerPass(player);
+        validateStartPlayerPass();
         validateHasCallCardPass(player);
     }
 
-    private void callEnd() {
-        calledRank = null;
-        isCallActive = false;
-    }
-
-    private void validateStartPlayerPass(Player player) {
-        if (player == startPlayer) {
+    private void validateStartPlayerPass() {
+        if (lastCombination == null) {
             throw new IllegalArgumentException(START_PLAYER_CANNOT_PASS);
         }
     }
@@ -105,8 +100,7 @@ public class Phase {
         if (!isCallActive) {
             return;
         }
-        if (lastCombination == null
-                || player.hasStrongThanCombinationWithCall(lastCombination, calledRank)) {
+        if (player.hasStrongThanCombinationWithCall(lastCombination, calledRank)) {
             throw new IllegalArgumentException(MUST_COMBINATION_INCLUDE_CALL);
         }
     }
@@ -118,5 +112,10 @@ public class Phase {
                 return;
             }
         }
+    }
+
+    private void callEnd() {
+        calledRank = null;
+        isCallActive = false;
     }
 }
