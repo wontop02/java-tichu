@@ -98,7 +98,8 @@ public class Round {
         return new Phase(startPlayer, direction);
     }
 
-    public void EndPhase(Phase phase) {
+    public void endPhase(Phase phase) {
+        phase.giveCardsToWinner();
         lastPhaseWinner = phase.getPhaseWinner();
     }
 

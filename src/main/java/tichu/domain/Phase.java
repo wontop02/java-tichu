@@ -7,7 +7,7 @@ import tichu.enums.Rank;
 public class Phase {
     private static final String LOW_OR_SAME_COMBINATION = "이전 조합보다 낮거나 같은 조합을 낼 수 없습니다.";
     private static final String START_PLAYER_CANNOT_PASS = "선 플레이어는 패스할 수 없습니다.";
-    private static final String CALL_CANNOT_PASS = "콜을 포함한 조합을 내야 합니다.";
+    private static final String MUST_COMBINATION_INCLUDE_CALL = "콜을 포함한 조합을 내야 합니다.";
     private final List<Player> direction;
     private final Player startPlayer;
     private final List<Card> phaseCards = new ArrayList<>();
@@ -31,29 +31,16 @@ public class Phase {
         isCallActive = true;
     }
 
-    public void callEnd() {
-        calledRank = null;
-        isCallActive = false;
-    }
-
-    public void nextTurn() {
-        for (int i = 0; i < 4; i++) {
-            turnIndex = (turnIndex + 1) % 4;
-            if (!passed[turnIndex]) {
-                return;
-            }
-        }
-    }
-
     public boolean isPlayerPassed(Player player) {
         return passed[direction.indexOf(player)];
     }
 
     public void pass(Player player) {
         passed[direction.indexOf(player)] = true;
+        nextTurn();
     }
 
-    public boolean isAllOthersPassed() {
+    public boolean isPhaseEnd() {
         int passCount = 0;
         for (int i = 0; i < passed.length; i++) {
             if (passed[i] && direction.get(i) != phaseWinner) {
@@ -63,36 +50,49 @@ public class Phase {
         return passCount == 3;
     }
 
-    public boolean isPhaseEnd() {
-        return isAllOthersPassed();
-    }
-
     public Player getCurrentPlayer() {
         return direction.get(turnIndex);
-    }
-
-    public Combination getLastCombination() {
-        return lastCombination;
     }
 
     public Player getPhaseWinner() {
         return phaseWinner;
     }
 
+    public void giveCardsToWinner() {
+        phaseWinner.addAcquireCards(phaseCards);
+    }
+
     public void evaluateCombination(Player player, Combination combination) {
         if (lastCombination != null && combination.compareTo(lastCombination) != 1) {
             throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
+        }
+        if (isCallActive) {
+            if (!combination.hasCallRank(calledRank)
+                    && player.hasStrongThanCombinationWithCall(lastCombination, calledRank)) {
+                throw new IllegalArgumentException(MUST_COMBINATION_INCLUDE_CALL);
+            }
+            if (combination.hasCallRank(calledRank)) {
+                callEnd();
+            }
         }
         lastCombination = combination;
         phaseWinner = player;
         passed = new boolean[4];
 
+        player.removeMyCards(combination.getCards());
         phaseCards.addAll(combination.getCards());
+
+        nextTurn();
     }
 
     public void validatePass(Player player) {
         validateStartPlayerPass(player);
         validateHasCallCardPass(player);
+    }
+
+    private void callEnd() {
+        calledRank = null;
+        isCallActive = false;
     }
 
     private void validateStartPlayerPass(Player player) {
@@ -107,7 +107,16 @@ public class Phase {
         }
         if (lastCombination == null
                 || player.hasStrongThanCombinationWithCall(lastCombination, calledRank)) {
-            throw new IllegalArgumentException(CALL_CANNOT_PASS);
+            throw new IllegalArgumentException(MUST_COMBINATION_INCLUDE_CALL);
+        }
+    }
+
+    private void nextTurn() {
+        for (int i = 0; i < 4; i++) {
+            turnIndex = (turnIndex + 1) % 4;
+            if (!passed[turnIndex]) {
+                return;
+            }
         }
     }
 }
