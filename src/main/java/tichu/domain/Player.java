@@ -17,6 +17,11 @@ public class Player {
 
     public void addMyCards(List<Card> card) {
         myCards.addAll(card);
+        Collections.sort(myCards);
+    }
+
+    public void addAcquireCards(List<Card> card) {
+        acquiredCards.addAll(card);
     }
 
     public void validateContainMyCard(Card card) {
