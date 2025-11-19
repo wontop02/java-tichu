@@ -1,5 +1,6 @@
 package tichu.domain;
 
+import java.util.Objects;
 import tichu.enums.Rank;
 import tichu.enums.Special;
 import tichu.enums.Suit;
@@ -32,6 +33,25 @@ public class Card implements Comparable<Card> {
             return this.suit.getPriority() - other.suit.getPriority();
         }
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Card card = (Card) o;
+        return rank == card.rank &&
+                suit == card.suit &&
+                special == card.special;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rank, suit, special);
     }
 
     private int priority() {
