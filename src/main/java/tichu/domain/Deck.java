@@ -15,25 +15,29 @@ public class Deck {
     }
 
     private void makeCards() {
-        this.cards.add(new Card(Special.DOG));
-        this.cards.add(new Card(Special.MAHJONG));
         for (Suit suit : Suit.values()) {
+            if (suit == Suit.NONE) {
+                continue;
+            }
             for (Rank rank : Rank.values()) {
                 this.cards.add(new Card(rank, suit));
             }
         }
+        this.cards.add(new Card(Special.DOG));
+        this.cards.add(new Card(Special.MAHJONG));
         this.cards.add(new Card(Special.PHOENIX));
         this.cards.add(new Card(Special.DRAGON));
     }
 
-    public void shuffle() {
-        Collections.shuffle(cards);
-    }
-
     public List<Card> deal(int count) {
+        shuffle();
         List<Card> dealCards = new ArrayList<>(cards.subList(0, count));
         cards.subList(0, count).clear();
         return dealCards;
+    }
+
+    private void shuffle() {
+        Collections.shuffle(cards);
     }
 
     public List<Card> getCards() {
