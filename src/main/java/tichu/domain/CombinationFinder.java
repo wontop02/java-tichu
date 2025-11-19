@@ -28,6 +28,9 @@ public class CombinationFinder {
         if (!includesCalledRank) {
             return false;
         }
+        if (combination.getCombinationType() == null) {
+            return true;
+        }
         boolean hasStrongCombination;
 
         if (containsPhoenix(cards)) {
