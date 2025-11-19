@@ -3,6 +3,7 @@ package tichu.domain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import tichu.enums.Rank;
 
 public class Player {
     private static final String NOT_IN_MY_CARDS = "보유하지 않은 카드가 존재합니다.";
@@ -32,11 +33,23 @@ public class Player {
         return name;
     }
 
+    public int getCardCount() {
+        return myCards.size();
+    }
+
     public void sortMyCards() {
         Collections.sort(myCards);
     }
 
     public List<Card> getMyCards() {
         return List.copyOf(myCards);
+    }
+
+    public boolean hasMahjong() {
+        return myCards.stream().anyMatch(Card::isMahjong);
+    }
+
+    public boolean hasStrongThanCombinationWithCall(Combination combination, Rank calledRank) {
+        return CombinationFinder.hasStrongCombinationWithCall(myCards, calledRank, combination);
     }
 }
