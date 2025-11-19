@@ -31,4 +31,20 @@ public class CardParser {
         Suit suit = Suit.valueOfSuit(suitInput);
         return new Card(rank, suit);
     }
+
+    public static List<String> fromCardsToStringList(List<Card> cards) {
+        return cards.stream()
+                .map(CardParser::fromCard)
+                .toList();
+    }
+
+    public static String fromCard(Card card) {
+        if (card.isSpecial()) {
+            Special special = card.getSpecial();
+            return special.getSpecial();
+        }
+        Rank rank = card.getRank();
+        Suit suit = card.getSuit();
+        return rank.getRank() + suit.getSuit();
+    }
 }
