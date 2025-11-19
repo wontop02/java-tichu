@@ -28,7 +28,7 @@ public class CombinationFinder {
         if (!includesCalledRank) {
             return false;
         }
-        if (combination.getCombinationType() == null) {
+        if (combination == null) {
             return true;
         }
         boolean hasStrongCombination;
