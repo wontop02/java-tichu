@@ -1,5 +1,9 @@
 package tichu.domain;
 
+import static tichu.enums.Rank.FIVE;
+import static tichu.enums.Rank.KING;
+import static tichu.enums.Rank.TEN;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -90,4 +94,24 @@ public class Player {
     public boolean hasStrongThanCombinationWithCall(Combination combination, Rank calledRank) {
         return CombinationFinder.hasStrongCombinationWithCall(myCards, calledRank, combination);
     }
+
+    public int calculateCardScore() {
+        int score = 0;
+        for (Card card : acquiredCards) {
+            if (card.getRank() == FIVE) {
+                score += 5;
+            }
+            if (card.getRank() == TEN || card.getRank() == KING) {
+                score += 10;
+            }
+            if (card.isDragon()) {
+                score += 25;
+            }
+            if (card.isPhoenix()) {
+                score -= 25;
+            }
+        }
+        return score;
+    }
+
 }
