@@ -30,7 +30,7 @@ public class InputValidator {
         inputs.forEach(InputValidator::validateNotBlank);
     }
 
-    public static void validateReceivePlayerName(String input) {
+    public static void validatePlayerName(String input) {
         validateNotBlank(input);
     }
 
