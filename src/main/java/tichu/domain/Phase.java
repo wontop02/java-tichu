@@ -9,7 +9,9 @@ public class Phase {
     private static final String START_PLAYER_CANNOT_PASS = "선 플레이어는 패스할 수 없습니다.";
     private static final String MUST_COMBINATION_INCLUDE_CALL = "콜을 포함한 조합을 내야 합니다.";
     private static final String CANNOT_SELECT_SAME_TEAM = "같은 팀원은 선택할 수 없습니다.";
-    private final List<Player> direction;
+    private static final String PLAYER_NOT_FOUND = "잘못된 플레이어 이름이 존재합니다.";
+
+    private final List<Player> players;
     private final Player startPlayer;
     private final List<Card> phaseCards = new ArrayList<>();
     private boolean[] passed;
@@ -20,10 +22,10 @@ public class Phase {
     private Player phaseWinner;
     private Combination lastCombination;
 
-    public Phase(Player startPlayer, List<Player> direction) {
+    public Phase(Player startPlayer, List<Player> players) {
         this.startPlayer = startPlayer;
-        this.direction = new ArrayList<>(direction);
-        this.turnIndex = direction.indexOf(startPlayer);
+        this.players = new ArrayList<>(players);
+        this.turnIndex = players.indexOf(startPlayer);
         this.passed = new boolean[4];
     }
 
@@ -33,18 +35,18 @@ public class Phase {
     }
 
     public boolean isPlayerPassed(Player player) {
-        return passed[direction.indexOf(player)];
+        return passed[players.indexOf(player)];
     }
 
     public void pass(Player player) {
-        passed[direction.indexOf(player)] = true;
+        passed[players.indexOf(player)] = true;
         nextTurn();
     }
 
     public boolean isPhaseEnd() {
         int passCount = 0;
         for (int i = 0; i < passed.length; i++) {
-            if (passed[i] && direction.get(i) != phaseWinner) {
+            if (passed[i] && players.get(i) != phaseWinner) {
                 passCount++;
             }
         }
@@ -52,7 +54,7 @@ public class Phase {
     }
 
     public Player getCurrentPlayer() {
-        return direction.get(turnIndex);
+        return players.get(turnIndex);
     }
 
     public Player getPhaseWinner() {
@@ -67,7 +69,11 @@ public class Phase {
         phaseWinner.addAcquireCards(phaseCards);
     }
 
-    public void giveCardsToPlayerWithDragon(Player player) {
+    public void giveCardsToPlayerWithDragon(String name) {
+        Player player = players.stream()
+                .filter(p -> p.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(PLAYER_NOT_FOUND));
         if (player.getTeam() == phaseWinner.getTeam()) {
             throw new IllegalArgumentException(CANNOT_SELECT_SAME_TEAM);
         }

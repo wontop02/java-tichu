@@ -83,8 +83,8 @@ public class Round {
         lastPhaseWinner = phase.getPhaseWinner();
     }
 
-    public void endPhase(Phase phase, Player player) {
-        phase.giveCardsToPlayerWithDragon(player);
+    public void endPhase(Phase phase, String name) {
+        phase.giveCardsToPlayerWithDragon(name);
         lastPhaseWinner = phase.getPhaseWinner();
     }
 
