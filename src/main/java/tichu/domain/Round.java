@@ -1,9 +1,15 @@
 package tichu.domain;
 
+import static tichu.enums.Place.FIRST;
+import static tichu.enums.Place.SECOND;
+import static tichu.enums.Team.BLUE;
+import static tichu.enums.Team.RED;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import tichu.enums.Place;
+import tichu.enums.Team;
 
 public class Round {
     private static final String ALREADY_CALLED_TICHU = "이미 티츄를 부른 플레이어가 존재합니다.";
@@ -14,8 +20,8 @@ public class Round {
     private Player lastPhaseWinner;
 
     private static final Place[] ORDER = {
-            Place.FIRST,
-            Place.SECOND,
+            FIRST,
+            SECOND,
             Place.THIRD,
             Place.FOURTH
     };
@@ -112,7 +118,7 @@ public class Round {
                 .orElseThrow(() -> new IllegalStateException(NOT_FOUND_HAS_MAJHONG));
     }
 
-    private void checkRoundPlace(Player player) {
+    public void checkRoundPlace(Player player) {
         if (player.getCardCount() != 0) {
             return;
         }
@@ -124,7 +130,7 @@ public class Round {
         }
     }
 
-    private boolean isEndPlayer(Player player) {
+    public boolean isEndPlayer(Player player) {
         return playerPlace.containsValue(player);
     }
 
@@ -138,5 +144,50 @@ public class Round {
             }
         }
         return playerPlace.size() == 4;
+    }
+
+    public Map<Team, Integer> calculateScore() {
+        Map<Team, Integer> teamScore = calculateCardScore();
+        Player first = playerPlace.get(Place.FIRST);
+
+        for (Player player : players) {
+            if (player.getLargeTichuStatus()) {
+                applyTichuScore(teamScore, player, first, 200);
+                continue;
+            }
+
+            if (player.getSmallTichuStatus()) {
+                applyTichuScore(teamScore, player, first, 100);
+            }
+        }
+        return teamScore;
+    }
+
+    private void applyTichuScore(Map<Team, Integer> teamScore, Player player, Player first, int point) {
+        Team team = player.getTeam();
+        if (player == first) {
+            teamScore.put(team, teamScore.get(team) + point);
+            return;
+        }
+        teamScore.put(team, teamScore.get(team) - point);
+    }
+
+    private Map<Team, Integer> calculateCardScore() {
+        Map<Team, Integer> cardScore = new HashMap<>();
+        cardScore.put(RED, 0);
+        cardScore.put(BLUE, 0);
+
+        Player first = playerPlace.get(FIRST);
+        Player second = playerPlace.get(SECOND);
+        if (first.getTeam() == second.getTeam()) {
+            Team team = first.getTeam();
+            cardScore.put(team, cardScore.get(team) + 200);
+            return cardScore;
+        }
+        for (Player player : players) {
+            int score = player.calculateCardScore();
+            cardScore.put(player.getTeam(), cardScore.get(player.getTeam()) + score);
+        }
+        return cardScore;
     }
 }
