@@ -28,7 +28,6 @@ public class Phase {
     private boolean isCallActive = false;
     private Player phaseWinner;
     private Combination lastCombination;
-    private Double singleValue = null;
 
     public Phase(Player startPlayer, List<Player> players) {
         this.startPlayer = startPlayer;
@@ -197,7 +196,7 @@ public class Phase {
         isCallActive = false;
     }
 
-    private Player findPlayer(String name) {
+    public Player findPlayer(String name) {
         return players.stream()
                 .filter(p -> p.getName().equals(name))
                 .findFirst()
