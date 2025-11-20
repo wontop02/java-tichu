@@ -14,13 +14,11 @@ class RoundTest {
     @DisplayName("카드가 중복 없이 나누어진다.")
     @Test
     void 카드가_중복_없이_나누어진다() {
-        List<Player> players = List.of(
-                new Player("하나"), new Player("둘"),
-                new Player("셋"), new Player("넷"));
-        TichuGame game = new TichuGame(players);
+        List<String> names = List.of("영희", "주영", "민지", "철수");
+        TichuGame game = new TichuGame(names);
         Round round = game.startRound();
+        List<Player> players = round.getPlayers();
 
-        round.settingRound();
         round.dealCards8();
         round.dealCards6();
 
@@ -37,16 +35,14 @@ class RoundTest {
     @DisplayName("이미 티츄를 불렀는데 또 스몰티츄를 부를 경우 예외가 발생한다")
     @Test
     void 이미_티츄를_불렀는데_또_스몰티츄를_부를_경우_예외가_발생한다() {
-        List<String> names = List.of("하나");
-        List<Player> players = List.of(
-                new Player("하나"), new Player("둘"),
-                new Player("셋"), new Player("넷"));
-        TichuGame game = new TichuGame(players);
+        List<String> names = List.of("영희", "주영", "민지", "철수");
+        TichuGame game = new TichuGame(names);
         Round round = game.startRound();
 
-        round.addSmallTichu(names);
+        List<String> tichuPlayer = List.of("주영");
+        round.addSmallTichu(tichuPlayer);
 
-        assertThatThrownBy(() -> round.addSmallTichu(names))
+        assertThatThrownBy(() -> round.addSmallTichu(tichuPlayer))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("이미 티츄를 부른 플레이어가 존재합니다.");
     }
@@ -54,15 +50,13 @@ class RoundTest {
     @DisplayName("입력된 이름의_플레이어가 존재하지 않으면 예외가 발생한다.")
     @Test
     void 입력된_이름의_플레이어가_존재하지_않으면_예외가_발생한다() {
-        List<String> names = List.of("영희", "주영");
-        List<Player> players = List.of(
-                new Player("철수"), new Player("영희"),
-                new Player("민지"), new Player("민철"));
+        List<String> names = List.of("영희", "주영", "민지", "철수");
+        List<String> name = List.of("짱구");
 
-        TichuGame tichuGame = new TichuGame(players);
+        TichuGame tichuGame = new TichuGame(names);
         Round round = tichuGame.startRound();
 
-        assertThatThrownBy(() -> round.validatePlayerNames(names))
+        assertThatThrownBy(() -> round.validatePlayerNames(name))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("잘못된 플레이어 이름이 존재합니다.");
     }

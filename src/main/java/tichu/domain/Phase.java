@@ -8,6 +8,7 @@ public class Phase {
     private static final String LOW_OR_SAME_COMBINATION = "이전 조합보다 낮거나 같은 조합을 낼 수 없습니다.";
     private static final String START_PLAYER_CANNOT_PASS = "선 플레이어는 패스할 수 없습니다.";
     private static final String MUST_COMBINATION_INCLUDE_CALL = "콜을 포함한 조합을 내야 합니다.";
+    private static final String CANNOT_SELECT_SAME_TEAM = "같은 팀원은 선택할 수 없습니다.";
     private final List<Player> direction;
     private final Player startPlayer;
     private final List<Card> phaseCards = new ArrayList<>();
@@ -58,8 +59,19 @@ public class Phase {
         return phaseWinner;
     }
 
+    public boolean winWithDragon() {
+        return phaseCards.getLast().isDragon();
+    }
+
     public void giveCardsToWinner() {
         phaseWinner.addAcquireCards(phaseCards);
+    }
+
+    public void giveCardsToPlayerWithDragon(Player player) {
+        if (player.getTeam() == phaseWinner.getTeam()) {
+            throw new IllegalArgumentException(CANNOT_SELECT_SAME_TEAM);
+        }
+        player.addAcquireCards(phaseCards);
     }
 
     public void evaluateCombination(Player player, Combination combination) {

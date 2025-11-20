@@ -10,12 +10,13 @@ import org.junit.jupiter.api.Test;
 import tichu.enums.Rank;
 import tichu.enums.Special;
 import tichu.enums.Suit;
+import tichu.enums.Team;
 
 class PlayerTest {
     @DisplayName("카드를 순서에 맞게 정렬한다.")
     @Test
     void 카드를_순서에_맞게_정렬한다() {
-        Player player = new Player("주영");
+        Player player = new Player("주영", Team.RED);
 
         List<Card> sortedCards = List.of(
                 new Card(Special.DOG),

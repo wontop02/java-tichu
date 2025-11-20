@@ -1,6 +1,5 @@
 package tichu.domain;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,29 +21,10 @@ public class Round {
     };
 
     private Deck deck;
-    private List<Player> largeTichu;
-    private List<Player> smallTichu;
-    private final List<Player> direction;
-    private final List<Player> red;
-    private final List<Player> blue;
-    private int roundNumber = 0;
     private int phaseNumber = 0;
 
-    public Round(List<Player> players,
-                 List<Player> direction,
-                 List<Player> red,
-                 List<Player> blue,
-                 int roundNumber) {
-        largeTichu = new ArrayList<>();
-        smallTichu = new ArrayList<>();
-        this.players = players;
-        this.direction = direction;
-        this.red = red;
-        this.blue = blue;
-        this.roundNumber = roundNumber;
-    }
-
-    public void settingRound() {
+    public Round(List<Player> playersWithDirection) {
+        this.players = playersWithDirection;
         deck = new Deck();
     }
 
@@ -55,7 +35,7 @@ public class Round {
     public void addLargeTichu(List<String> names) {
         for (String name : names) {
             Player player = findPlayerByName(name); // String → Player
-            largeTichu.add(player);
+            player.callLargeTichu();
         }
     }
 
@@ -67,7 +47,7 @@ public class Round {
         for (String name : names) {
             Player player = findPlayerByName(name);
             validateNotAlreadyCalledTichu(player);
-            smallTichu.add(player);
+            player.callSmallTichu();
         }
     }
 
@@ -77,13 +57,13 @@ public class Round {
         }
     }
 
-    public List<Player> getDirection() {
-        return List.copyOf(direction);
+    public List<Player> getPlayers() {
+        return List.copyOf(players);
     }
 
     public void tradeCards(List<List<Card>> received) {
         for (int i = 0; i < 4; i++) {
-            direction.get(i).addMyCards(received.get(i));
+            players.get(i).addMyCards(received.get(i));
         }
     }
 
@@ -92,14 +72,19 @@ public class Round {
         Player startPlayer;
         if (phaseNumber == 1) {
             startPlayer = decideStartPlayer();
-            return new Phase(startPlayer, direction);
+            return new Phase(startPlayer, players);
         }
         startPlayer = lastPhaseWinner;
-        return new Phase(startPlayer, direction);
+        return new Phase(startPlayer, players);
     }
 
     public void endPhase(Phase phase) {
         phase.giveCardsToWinner();
+        lastPhaseWinner = phase.getPhaseWinner();
+    }
+
+    public void endPhase(Phase phase, Player player) {
+        phase.giveCardsToPlayerWithDragon(player);
         lastPhaseWinner = phase.getPhaseWinner();
     }
 
@@ -115,7 +100,7 @@ public class Round {
     }
 
     private void validateNotAlreadyCalledTichu(Player player) {
-        if (largeTichu.contains(player) || smallTichu.contains(player)) {
+        if (player.getLargeTichuStatus() || player.getSmallTichuStatus()) {
             throw new IllegalArgumentException(ALREADY_CALLED_TICHU);
         }
     }
@@ -145,7 +130,7 @@ public class Round {
 
     public boolean isRoundEnd() {
         if (playerPlace.size() == 3 && !playerPlace.containsKey(Place.FOURTH)) {
-            for (Player player : direction) {
+            for (Player player : players) {
                 if (!playerPlace.containsValue(player)) {
                     playerPlace.put(Place.FOURTH, player);
                     break;

@@ -3,38 +3,43 @@ package tichu.domain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import tichu.enums.Team;
 
 public class TichuGame {
     private static final String INCORRECT_PLAYER_NUMBER = "참가자 수는 반드시 4명이어야 합니다.";
 
-    private final List<Player> players;
+    private final List<Player> playersWithDirection;
     private int roundNumber = 0;
 
-    public TichuGame(List<Player> players) {
-        validatePlayers(players);
-        this.players = players;
+    public TichuGame(List<String> names) {
+        validatePlayerCount(names);
+        this.playersWithDirection = decisionDirection(names);
     }
 
     public Round startRound() {
         roundNumber++;
-        List<Player> direction = decisionDirection(players);
-        List<Player> red = List.of(direction.get(0), direction.get(2));
-        List<Player> blue = List.of(direction.get(1), direction.get(3));
 
-        Round round = new Round(players, direction, red, blue, roundNumber);
-        round.settingRound();
-        return round;
+        return new Round(playersWithDirection);
     }
 
-    private void validatePlayers(List<Player> players) {
-        if (players.size() != 4) {
+    private void validatePlayerCount(List<String> names) {
+        if (names.size() != 4) {
             throw new IllegalArgumentException(INCORRECT_PLAYER_NUMBER);
         }
     }
 
-    private static List<Player> decisionDirection(List<Player> players) {
-        List<Player> direction = new ArrayList<>(players);
-        Collections.shuffle(direction);
-        return direction;
+    private List<Player> decisionDirection(List<String> names) {
+        List<String> playerNames = new ArrayList<>(names);
+        Collections.shuffle(playerNames);
+        List<Player> players = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            String name = playerNames.get(i);
+            if (i % 2 != 0) {
+                players.add(new Player(name, Team.RED));
+                continue;
+            }
+            players.add(new Player(name, Team.BLUE));
+        }
+        return players;
     }
 }

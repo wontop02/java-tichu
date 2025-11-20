@@ -4,15 +4,36 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import tichu.enums.Rank;
+import tichu.enums.Team;
 
 public class Player {
     private static final String NOT_IN_MY_CARDS = "보유하지 않은 카드가 존재합니다.";
     private final String name;
+    private Team team;
     private List<Card> myCards = new ArrayList<>();
     private List<Card> acquiredCards = new ArrayList<>();
+    private boolean isLargeTichu;
+    private boolean isSmallTichu;
 
-    public Player(String name) {
+    public Player(String name, Team team) {
         this.name = name;
+        this.team = team;
+    }
+
+    public void callLargeTichu() {
+        isLargeTichu = true;
+    }
+
+    public boolean getLargeTichuStatus() {
+        return isLargeTichu;
+    }
+
+    public void callSmallTichu() {
+        isLargeTichu = true;
+    }
+
+    public boolean getSmallTichuStatus() {
+        return isLargeTichu;
     }
 
     public void addMyCards(List<Card> card) {
@@ -36,6 +57,10 @@ public class Player {
 
     public String getName() {
         return name;
+    }
+
+    public Team getTeam() {
+        return team;
     }
 
     public int getCardCount() {
