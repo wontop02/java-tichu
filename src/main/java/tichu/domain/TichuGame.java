@@ -52,8 +52,7 @@ public class TichuGame {
         return players;
     }
 
-    public void addTeamScore(Round round) {
-        Map<Team, Integer> roundScore = round.calculateScore();
+    public void addTeamScore(Map<Team, Integer> roundScore) {
         teamScore.put(RED, teamScore.get(RED) + roundScore.get(RED));
         teamScore.put(BLUE, teamScore.get(BLUE) + roundScore.get(BLUE));
     }
