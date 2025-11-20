@@ -67,6 +67,14 @@ public class Player {
         myCards.removeAll(cards);
     }
 
+    public void clearMyCards() {
+        myCards.clear();
+    }
+
+    public void clearAcquireCards() {
+        acquiredCards.clear();
+    }
+
     public String getName() {
         return name;
     }
@@ -87,6 +95,10 @@ public class Player {
         return List.copyOf(myCards);
     }
 
+    public List<Card> getAcquiredCards() {
+        return List.copyOf(acquiredCards);
+    }
+
     public boolean hasMahjong() {
         return myCards.stream().anyMatch(Card::isMahjong);
     }
@@ -95,9 +107,17 @@ public class Player {
         return CombinationFinder.hasStrongCombinationWithCall(myCards, calledRank, combination);
     }
 
-    public int calculateCardScore() {
+    public int calculateAcquireCardScore() {
+        return calculateScore(acquiredCards);
+    }
+
+    public int calculateMyCardScore() {
+        return calculateScore(myCards);
+    }
+
+    private int calculateScore(List<Card> cards) {
         int score = 0;
-        for (Card card : acquiredCards) {
+        for (Card card : cards) {
             if (card.getRank() == FIVE) {
                 score += 5;
             }
@@ -113,5 +133,4 @@ public class Player {
         }
         return score;
     }
-
 }

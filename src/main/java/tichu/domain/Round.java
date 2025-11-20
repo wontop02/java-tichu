@@ -1,6 +1,7 @@
 package tichu.domain;
 
 import static tichu.enums.Place.FIRST;
+import static tichu.enums.Place.FOURTH;
 import static tichu.enums.Place.SECOND;
 import static tichu.enums.Team.BLUE;
 import static tichu.enums.Team.RED;
@@ -23,7 +24,7 @@ public class Round {
             FIRST,
             SECOND,
             Place.THIRD,
-            Place.FOURTH
+            FOURTH
     };
 
     private Deck deck;
@@ -135,10 +136,10 @@ public class Round {
     }
 
     public boolean isRoundEnd() {
-        if (playerPlace.size() == 3 && !playerPlace.containsKey(Place.FOURTH)) {
+        if (playerPlace.size() == 3 && !playerPlace.containsKey(FOURTH)) {
             for (Player player : players) {
                 if (!playerPlace.containsValue(player)) {
-                    playerPlace.put(Place.FOURTH, player);
+                    playerPlace.put(FOURTH, player);
                     break;
                 }
             }
@@ -148,7 +149,7 @@ public class Round {
 
     public Map<Team, Integer> calculateScore() {
         Map<Team, Integer> teamScore = calculateCardScore();
-        Player first = playerPlace.get(Place.FIRST);
+        Player first = playerPlace.get(FIRST);
 
         for (Player player : players) {
             if (player.getLargeTichuStatus()) {
@@ -184,8 +185,25 @@ public class Round {
             cardScore.put(team, cardScore.get(team) + 200);
             return cardScore;
         }
+
+        Player fourth = playerPlace.get(FOURTH);
+        Team fourthTeam = fourth.getTeam();
+        Team otherTeam = RED;
+        if (fourthTeam == RED) {
+            otherTeam = BLUE;
+        }
+
+        // 1등에게 획득한 카드 줌
+        first.addAcquireCards(fourth.getAcquiredCards());
+        fourth.clearAcquireCards();
+        // 다른 팀에게 마지막까지 들고 있던 카드 줌
+
+        int fourthHandScore = fourth.calculateMyCardScore();
+        cardScore.put(otherTeam, cardScore.get(otherTeam) + fourthHandScore);
+        fourth.clearMyCards();
+
         for (Player player : players) {
-            int score = player.calculateCardScore();
+            int score = player.calculateAcquireCardScore();
             cardScore.put(player.getTeam(), cardScore.get(player.getTeam()) + score);
         }
         return cardScore;
