@@ -139,7 +139,8 @@ public class Phase {
             useDog(player, combination);
             return;
         }
-        if (combination.getCombinationType() == SINGLE
+        if (lastCombination != null
+                && combination.getCombinationType() == SINGLE
                 && lastCombination.getCombinationType() == SINGLE) {
             evaluateSingleCombination(combination);
         }
