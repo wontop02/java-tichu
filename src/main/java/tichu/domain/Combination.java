@@ -7,7 +7,6 @@ import static tichu.enums.CombinationType.SINGLE;
 import java.util.List;
 import tichu.enums.CombinationType;
 import tichu.enums.Rank;
-import tichu.enums.Special;
 
 // 낸 패 조합
 public class Combination {
@@ -69,6 +68,21 @@ public class Combination {
                 || (combinationResult.getType() == BOMB_STRAIGHT_FLUSH);
     }
 
+    public boolean isDog() {
+        return cards.getFirst().isDog();
+    }
+
+    public boolean isSinglePhoenix() {
+        if (combinationResult.getType() == SINGLE) {
+            return cards.getFirst().isPhoenix();
+        }
+        return false;
+    }
+
+    public boolean isDragon() {
+        return cards.getFirst().isDragon();
+    }
+
     public boolean hasMahjong() {
         return cards.stream().anyMatch(Card::isMahjong);
     }
@@ -78,29 +92,8 @@ public class Combination {
     }
 
     private int compareSameType(Combination other) {
-        if (this.combinationResult.getType() == SINGLE) {
-            return compareSingle(other);
-        }
         if (isBomb()) {
             return compareBomb(other);
-        }
-        return compareByTopCard(other);
-    }
-
-    private int compareSingle(Combination other) {
-        Card myTopCard = this.combinationResult.getTopCard();
-        Card otherTopCard = other.combinationResult.getTopCard();
-        if (myTopCard.getSpecial() == Special.DRAGON) {
-            return 1;
-        }
-        if (otherTopCard.getSpecial() == Special.DRAGON) {
-            return -1;
-        }
-        if (myTopCard.getSpecial() == Special.PHOENIX) {
-            return 1;
-        }
-        if (otherTopCard.getSpecial() == Special.PHOENIX) {
-            return -1;
         }
         return compareByTopCard(other);
     }
