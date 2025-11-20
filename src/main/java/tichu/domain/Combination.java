@@ -23,15 +23,31 @@ public class Combination {
 
     // 조합 간 비교
     public int compareTo(Combination other) {
+        CombinationType thisType = combinationResult.getType();
+        CombinationType otherType = other.combinationResult.getType();
         if (this.isBomb() && !other.isBomb()) {
             return 1;
         }
         if (!this.isBomb() && other.isBomb()) {
             return -1;
         }
-
-        if (this.combinationResult.getType() != other.combinationResult.getType()) {
+        if (this.isBomb() && other.isBomb()) {
+            return compareToBetweenBombs(other);
+        }
+        if (thisType != otherType) {
             throw new IllegalArgumentException(INCOMPARABLE);
+        }
+        return compareSameType(other);
+    }
+
+    private int compareToBetweenBombs(Combination other) {
+        CombinationType thisType = combinationResult.getType();
+        CombinationType otherType = other.combinationResult.getType();
+        if (thisType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_FOUR_CARD) {
+            return 1;
+        }
+        if (thisType == BOMB_FOUR_CARD && otherType == BOMB_STRAIGHT_FLUSH) {
+            return -1;
         }
         return compareSameType(other);
     }
