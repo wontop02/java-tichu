@@ -43,6 +43,14 @@ public class OutputView {
     private OutputView() {
     }
 
+    public static void printErrorMessage(String message) {
+        System.out.println(ERROR_PREFIX + message + ERROR_SUFFIX);
+    }
+
+    public static void printRoundEndMessage(String message) {
+        System.out.println(message);
+    }
+
     public static void printTeamAndDirection(
             List<PlayerDto> playerDtos,
             List<PlayerDto> red,
@@ -91,10 +99,6 @@ public class OutputView {
 
     public static void printTradeEnd() {
         System.out.println(PRINT_CARD_TRADE_END);
-    }
-
-    public static void printErrorMessage(String message) {
-        System.out.println(ERROR_PREFIX + message + ERROR_SUFFIX);
     }
 
     public static void printFirstPlayer(PlayerDto playerDto) {
@@ -168,7 +172,6 @@ public class OutputView {
             System.out.printf(PRINT_CARD_COUNT_ZERO, playerDto.getStatus());
         }
         System.out.printf(PRINT_PLACE, place, playerDto.getStatus());
-        System.out.println();
     }
 
     public static void printTeamScore(Map<Team, Integer> currentTeamScore) {
