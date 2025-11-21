@@ -10,7 +10,7 @@ public class InputView {
     private static final String REQUEST_CALL_RANK = "콜을 부를 숫자 또는 알파벳을 입력해 주세요(문양 제외 입력, 없으면 x): ";
     private static final String REQUEST_RECEIVE_PLAYER_NAME = "용으로 획득한 카드를 받을 상대 팀 플레이어 이름을 입력해 주세요: ";
     private static final String REQUEST_BOMB_PLAYER_NAME = "폭탄을 낼 참가자 이름을 입력해 주세요(없으면 x): ";
-    private static final String REQUEST_BOMB_COMBINATION = "폭탄을 입력해 주세요";
+    private static final String REQUEST_BOMB_COMBINATION = "폭탄을 입력해 주세요(취소는 x): ";
 
     private static final Scanner scanner = new Scanner(System.in);
 
