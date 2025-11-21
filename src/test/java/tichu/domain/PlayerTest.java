@@ -1,6 +1,13 @@
 package tichu.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static tichu.enums.Rank.FIVE;
+import static tichu.enums.Rank.KING;
+import static tichu.enums.Rank.TEN;
+import static tichu.enums.Special.DRAGON;
+import static tichu.enums.Special.PHOENIX;
+import static tichu.enums.Suit.SPADE;
+import static tichu.enums.Team.RED;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,25 +17,24 @@ import org.junit.jupiter.api.Test;
 import tichu.enums.Rank;
 import tichu.enums.Special;
 import tichu.enums.Suit;
-import tichu.enums.Team;
 
 class PlayerTest {
     @DisplayName("카드를 순서에 맞게 정렬한다.")
     @Test
     void 카드를_순서에_맞게_정렬한다() {
-        Player player = new Player("주영", Team.RED);
+        Player player = new Player("주영", RED);
 
         List<Card> sortedCards = List.of(
                 new Card(Special.DOG),
                 new Card(Special.MAHJONG),
-                new Card(Rank.TWO, Suit.SPADE),
-                new Card(Rank.SEVEN, Suit.SPADE),
+                new Card(Rank.TWO, SPADE),
+                new Card(Rank.SEVEN, SPADE),
                 new Card(Rank.SEVEN, Suit.DIAMOND),
                 new Card(Rank.SEVEN, Suit.HEART),
                 new Card(Rank.SEVEN, Suit.CLUB),
-                new Card(Rank.ACE, Suit.SPADE),
+                new Card(Rank.ACE, SPADE),
                 new Card(Special.PHOENIX),
-                new Card(Special.DRAGON)
+                new Card(DRAGON)
         );
 
         List<Card> shuffledCards = new ArrayList<>(sortedCards);
@@ -38,5 +44,16 @@ class PlayerTest {
         player.sortMyCards();
 
         assertEquals(sortedCards, player.getMyCards());
+    }
+
+    @DisplayName("카드 점수를 정확히 계산한다")
+    @Test
+    void 카드_점수를_정확히_계산한다() {
+        Player player = new Player("주영", RED);
+        player.addMyCards(List.of(
+                new Card(FIVE, SPADE), new Card(TEN, SPADE),
+                new Card(KING, SPADE), new Card(DRAGON), new Card(PHOENIX)
+        ));
+        assertEquals(25, player.calculateMyCardScore());
     }
 }
