@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import tichu.enums.Place;
 import tichu.enums.Team;
+import tichu.exception.RoundEndSignal;
 
 public class Round {
     private static final String ALREADY_CALLED_TICHU = "이미 티츄를 부른 플레이어가 존재합니다.";
@@ -158,6 +159,15 @@ public class Round {
         for (Place place : Place.values()) {
             if (!playerPlace.containsKey(place)) {
                 playerPlace.put(place, player);
+                if (place == SECOND) {
+                    // 같은 팀이 1, 2등이면 강제 종료
+                    Player first = playerPlace.get(FIRST);
+                    Player second = playerPlace.get(SECOND);
+
+                    if (first.getTeam() == second.getTeam()) {
+                        throw new RoundEndSignal();
+                    }
+                }
                 return true;
             }
         }
