@@ -3,6 +3,7 @@ package tichu.domain;
 import static tichu.enums.Place.FIRST;
 import static tichu.enums.Place.FOURTH;
 import static tichu.enums.Place.SECOND;
+import static tichu.enums.Place.THIRD;
 import static tichu.enums.Team.BLUE;
 import static tichu.enums.Team.RED;
 
@@ -23,7 +24,7 @@ public class Round {
     private static final Place[] ORDER = {
             FIRST,
             SECOND,
-            Place.THIRD,
+            THIRD,
             FOURTH
     };
 
@@ -66,6 +67,10 @@ public class Round {
 
     public List<Player> getPlayers() {
         return List.copyOf(players);
+    }
+
+    public Map<Place, Player> getPlayerPlace() {
+        return Map.copyOf(playerPlace);
     }
 
     public void tradeCards(List<List<Card>> received) {
