@@ -18,6 +18,7 @@ public class Round {
     private static final String PLAYER_NOT_FOUND = "잘못된 플레이어 이름이 존재합니다.";
     private static final String NOT_FOUND_HAS_MAJHONG = "1 카드를 가진 플레이어가 존재하지 않습니다.";
     private static final String NOT_FOUND_PLACE = "등수를 찾을 수 없습니다.";
+    private static final String NOT_FOUND_NEXT_PLAYER = "페이즈 시작이 가능한 플레이어가 없습니다.";
 
     private final List<Player> players;
     private final Map<Place, Player> playerPlace = new HashMap<>();
@@ -89,7 +90,24 @@ public class Round {
             return new Phase(startPlayer, players);
         }
         startPlayer = lastPhaseWinner;
+        if (isEndPlayer(startPlayer)) {
+            startPlayer = findNextNotEndPlayer(startPlayer);
+        }
         return new Phase(startPlayer, players);
+    }
+
+    private Player findNextNotEndPlayer(Player startPlayer) {
+        int index = players.indexOf(startPlayer);
+
+        for (int i = 0; i < 4; i++) {
+            index = (index + 1) % players.size();
+            Player nextPlayer = players.get(index);
+
+            if (!isEndPlayer(nextPlayer)) {
+                return nextPlayer;
+            }
+        }
+        throw new IllegalStateException(NOT_FOUND_NEXT_PLAYER);
     }
 
     public void endPhase(Phase phase) {
