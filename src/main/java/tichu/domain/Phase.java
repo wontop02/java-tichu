@@ -17,8 +17,6 @@ public class Phase {
     private static final String MUST_STRONG_BOMB = "이전 폭탄보다 강한 폭탄만 낼 수 있습니다.";
     private static final String CANNOT_USE_BOMB = "폭탄은 첫 조합으로 낼 수 없습니다.";
     private static final String TEAM_MEMBER_NOT_FOUND = "팀원을 찾을 수 없습니다.";
-    private static final String NOTHING_TABLE_COMBINATION = "조합 없음";
-    private static final String ONLY_PHOENIX_RANK = "0.5";
 
     private final List<Player> players;
     private final Player startPlayer;
@@ -30,7 +28,7 @@ public class Phase {
     private boolean isCallActive = false;
     private Player phaseWinner;
     private Combination lastCombination;
-
+    
     public Phase(Player startPlayer, List<Player> players) {
         this.startPlayer = startPlayer;
         this.players = new ArrayList<>(players);
@@ -43,21 +41,19 @@ public class Phase {
         isCallActive = true;
     }
 
-    public String getTopRank() {
+    public Rank getTopRank() {
         if (this.lastCombination == null) {
-            return NOTHING_TABLE_COMBINATION;
+            return null;
         }
         int phoenixIndex = phaseCards.size() - 1;
         boolean hasBeforeCard = phoenixIndex > 0;
         if (lastCombination.isSinglePhoenix()) {
             if (!hasBeforeCard) {
-                return ONLY_PHOENIX_RANK;
+                return Rank.ONE;
             }
-            Rank rank = phaseCards.get(phoenixIndex - 1).getRank();
-            double phoenixRank = rank.getPriority() + 0.5;
-            return phoenixRank + "";
+            return phaseCards.get(phoenixIndex - 1).getRank();
         }
-        return lastCombination.getTopRank().getPriority() + "";
+        return lastCombination.getTopRank();
     }
 
     public void pass(Player player) {
@@ -140,6 +136,14 @@ public class Phase {
 
     public Combination getLastCombination() {
         return lastCombination;
+    }
+
+    public boolean isCallActive() {
+        return isCallActive;
+    }
+
+    public Rank getCalledRank() {
+        return calledRank;
     }
 
     public void giveCardsToPlayerWithDragon(String name) {
