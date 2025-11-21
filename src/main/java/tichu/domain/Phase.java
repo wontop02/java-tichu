@@ -17,6 +17,8 @@ public class Phase {
     private static final String MUST_STRONG_BOMB = "이전 폭탄보다 강한 폭탄만 낼 수 있습니다.";
     private static final String CANNOT_USE_BOMB = "폭탄은 첫 조합으로 낼 수 없습니다.";
     private static final String TEAM_MEMBER_NOT_FOUND = "팀원을 찾을 수 없습니다.";
+    private static final String NOTHING_TABLE_COMBINATION = "조합 없음";
+    private static final String ONLY_PHOENIX_RANK = "0.5";
 
     private final List<Player> players;
     private final Player startPlayer;
@@ -39,6 +41,23 @@ public class Phase {
     public void callRank(Rank rank) {
         calledRank = rank;
         isCallActive = true;
+    }
+
+    public String getTopRank() {
+        if (this.lastCombination == null) {
+            return NOTHING_TABLE_COMBINATION;
+        }
+        int phoenixIndex = phaseCards.size() - 1;
+        boolean hasBeforeCard = phoenixIndex > 0;
+        if (lastCombination.isSinglePhoenix()) {
+            if (!hasBeforeCard) {
+                return ONLY_PHOENIX_RANK;
+            }
+            Rank rank = phaseCards.get(phoenixIndex - 1).getRank();
+            double phoenixRank = rank.getPriority() + 0.5;
+            return phoenixRank + "";
+        }
+        return lastCombination.getTopRank().getPriority() + "";
     }
 
     public void pass(Player player) {
@@ -135,22 +154,29 @@ public class Phase {
         if (isCallActive) {
             includeCallRank(player, combination);
         }
-        if (lastCombination == null && combination.isDog()) {
-            useDog(player, combination);
+        if (lastCombination == null) {
+            if (combination.isDog()) {
+                useDog(player, combination);
+                return;
+            }
+            registerCombination(player, combination);
             return;
         }
-        if (lastCombination != null
-                && combination.getCombinationType() == SINGLE
+        if (lastCombination.isBomb() && !combination.isBomb()) {
+            throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
+        }
+        if (combination.getCombinationType() == SINGLE
                 && lastCombination.getCombinationType() == SINGLE) {
             if (evaluateSingleCombination(combination) != -1) {
                 throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
             }
+            registerCombination(player, combination);
+            return;
         }
-        if (combination.getCombinationType() != SINGLE
-                && lastCombination != null
-                && combination.compareTo(lastCombination) != 1) {
-            throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
-        }
+        registerCombination(player, combination);
+    }
+
+    private void registerCombination(Player player, Combination combination) {
         lastCombination = combination;
         phaseWinner = player;
         passed = new boolean[4];
@@ -160,6 +186,7 @@ public class Phase {
 
         nextTurn();
     }
+
 
     public void validatePass(Player player) {
         validateStartPlayerPass();
@@ -224,23 +251,27 @@ public class Phase {
             int phoenixIndex = phaseCards.size() - 1;
             boolean hasBeforeCard = phoenixIndex > 0;
             if (hasBeforeCard) {
-                Card beforePhoenix = phaseCards.get(phoenixIndex - 1);
-                int beforePhoenixRank = beforePhoenix.getRankPriority();
-                int combinationRank = newTopCard.getRankPriority();
-
-                if (beforePhoenixRank > combinationRank) {
-                    return 1;
-                }
-                if (beforePhoenixRank < combinationRank) {
-                    return -1;
-                }
-                return 0;
+                return evaluatePhoenixSingleCombination(phoenixIndex, newTopCard);
             }
         }
         if (lastTopCard.getRankPriority() > newTopCard.getRankPriority()) {
             return 1;
         }
         if (lastTopCard.getRankPriority() < newTopCard.getRankPriority()) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private int evaluatePhoenixSingleCombination(int phoenixIndex, Card newTopCard) {
+        Card beforePhoenix = phaseCards.get(phoenixIndex - 1);
+        int beforePhoenixRank = beforePhoenix.getRankPriority();
+        int combinationRank = newTopCard.getRankPriority();
+
+        if (beforePhoenixRank > combinationRank) {
+            return 1;
+        }
+        if (beforePhoenixRank < combinationRank) {
             return -1;
         }
         return 0;

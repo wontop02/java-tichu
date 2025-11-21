@@ -60,6 +60,10 @@ public class Combination {
         return combinationResult.getTopCard();
     }
 
+    public Rank getTopRank() {
+        return combinationResult.getTopRank();
+    }
+
     public boolean isBomb() {
         return (combinationResult.getType() == BOMB_FOUR_CARD)
                 || (combinationResult.getType() == BOMB_STRAIGHT_FLUSH);
