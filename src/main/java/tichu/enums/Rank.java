@@ -3,6 +3,9 @@ package tichu.enums;
 import java.util.Arrays;
 
 public enum Rank {
+    // 봉 처음 냈을 때 전용
+    ONE("1", 1),
+
     TWO("2", 2),
     THREE("3", 3),
     FOUR("4", 4),

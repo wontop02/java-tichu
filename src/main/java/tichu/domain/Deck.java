@@ -20,6 +20,9 @@ public class Deck {
                 continue;
             }
             for (Rank rank : Rank.values()) {
+                if (rank == Rank.ONE) {
+                    continue;
+                }
                 this.cards.add(new Card(rank, suit));
             }
         }
