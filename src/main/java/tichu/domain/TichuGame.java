@@ -44,10 +44,10 @@ public class TichuGame {
         for (int i = 0; i < 4; i++) {
             String name = playerNames.get(i);
             if (i % 2 != 0) {
-                players.add(new Player(name, RED));
+                players.add(new Player(name, BLUE));
                 continue;
             }
-            players.add(new Player(name, BLUE));
+            players.add(new Player(name, RED));
         }
         return players;
     }
@@ -62,6 +62,14 @@ public class TichuGame {
             return true;
         }
         return false;
+    }
+
+    public int getRoundNumber() {
+        return roundNumber;
+    }
+
+    public List<Player> getPlayersWithDirection() {
+        return List.copyOf(playersWithDirection);
     }
 
     public Team tichuGameWinner() {
