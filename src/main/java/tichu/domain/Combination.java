@@ -24,28 +24,30 @@ public class Combination {
     public int compareTo(Combination other) {
         CombinationType thisType = combinationResult.getType();
         CombinationType otherType = other.combinationResult.getType();
-        if (this.isBomb() != other.isBomb()) {
-            throw new IllegalArgumentException(INCOMPARABLE);
+
+        boolean myBomb = this.isBomb();
+        boolean otherBomb = other.isBomb();
+
+        if (myBomb && !otherBomb) {
+            return 1;
         }
-        if (this.isBomb()) {
-            return compareToBetweenBombs(other);
+        if (!myBomb && otherBomb) {
+            return -1;
+        }
+        if (myBomb && otherBomb) {
+            return compareBomb(other);
         }
         if (thisType != otherType) {
             throw new IllegalArgumentException(INCOMPARABLE);
         }
-        return compareSameType(other);
-    }
+        // 같은 타입이어도 장수 다르면 비교 불가
+        if (this.cards.size() != other.cards.size()) {
+            throw new IllegalArgumentException(INCOMPARABLE);
+        }
+        Rank myRank = this.getTopRank();
+        Rank otherRank = other.getTopRank();
 
-    private int compareToBetweenBombs(Combination other) {
-        CombinationType thisType = combinationResult.getType();
-        CombinationType otherType = other.combinationResult.getType();
-        if (thisType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_FOUR_CARD) {
-            return 1;
-        }
-        if (thisType == BOMB_FOUR_CARD && otherType == BOMB_STRAIGHT_FLUSH) {
-            return -1;
-        }
-        return compareSameType(other);
+        return Integer.compare(myRank.getPriority(), otherRank.getPriority());
     }
 
     public CombinationType getCombinationType() {
@@ -84,6 +86,10 @@ public class Combination {
         return cards.getFirst().isDragon();
     }
 
+    public boolean isMahjong() {
+        return cards.getFirst().isMahjong();
+    }
+
     public boolean hasMahjong() {
         return cards.stream().anyMatch(Card::isMahjong);
     }
@@ -92,26 +98,34 @@ public class Combination {
         return cards.stream().anyMatch(card -> card.getRank() == rank);
     }
 
-    private int compareSameType(Combination other) {
-        if (isBomb()) {
-            return compareBomb(other);
-        }
-        return compareByTopCard(other);
-    }
-
     private int compareBomb(Combination other) {
-        if (this.cards.size() > other.cards.size()) {
+        CombinationType myType = this.combinationResult.getType();
+        CombinationType otherType = other.combinationResult.getType();
+        // 폭탄 종류 비교
+        if (myType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_FOUR_CARD) {
             return 1;
         }
-        if (this.cards.size() < other.cards.size()) {
+        if (myType == BOMB_FOUR_CARD && otherType == BOMB_STRAIGHT_FLUSH) {
             return -1;
         }
-        return compareByTopCard(other);
-    }
+        // 길이 비교
+        if (myType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_STRAIGHT_FLUSH) {
+            if (this.cards.size() > other.cards.size()) {
+                return 1;
+            }
+            if (this.cards.size() < other.cards.size()) {
+                return -1;
+            }
 
-    private int compareByTopCard(Combination other) {
-        Rank myTopRank = this.combinationResult.getTopRank();
-        Rank otherTopRank = other.combinationResult.getTopRank();
-        return Integer.compare(myTopRank.getPriority(), otherTopRank.getPriority());
+            // 길이 같으면 topRank 비교
+            return Integer.compare(
+                    this.getTopRank().getPriority(),
+                    other.getTopRank().getPriority()
+            );
+        }
+        return Integer.compare(
+                this.getTopRank().getPriority(),
+                other.getTopRank().getPriority()
+        );
     }
 }
