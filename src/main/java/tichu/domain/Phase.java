@@ -142,9 +142,13 @@ public class Phase {
         if (lastCombination != null
                 && combination.getCombinationType() == SINGLE
                 && lastCombination.getCombinationType() == SINGLE) {
-            evaluateSingleCombination(combination);
+            if (evaluateSingleCombination(combination) != -1) {
+                throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
+            }
         }
-        if (lastCombination != null && combination.compareTo(lastCombination) != 1) {
+        if (combination.getCombinationType() != SINGLE
+                && lastCombination != null
+                && combination.compareTo(lastCombination) != 1) {
             throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
         }
         lastCombination = combination;
@@ -204,23 +208,42 @@ public class Phase {
                 .orElseThrow(() -> new IllegalArgumentException(PLAYER_NOT_FOUND));
     }
 
-    private void evaluateSingleCombination(Combination combination) {
-        if (lastCombination.isDragon()) {
-            throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
+    private int evaluateSingleCombination(Combination combination) {
+        if (lastCombination == null) {
+            return -1;
         }
-        if (lastCombination.getTopCard().isPhoenix()) {
-            if (phaseCards.size() != 1) {
-                int phoenixIndex = phaseCards.size() - 1;
+        if (lastCombination.isDragon()) {
+            return 1;
+        }
+        if (combination.isDragon()) {
+            return -1;
+        }
+        Card lastTopCard = lastCombination.getTopCard();
+        Card newTopCard = combination.getTopCard();
+        if (lastTopCard.isPhoenix()) {
+            int phoenixIndex = phaseCards.size() - 1;
+            boolean hasBeforeCard = phoenixIndex > 0;
+            if (hasBeforeCard) {
                 Card beforePhoenix = phaseCards.get(phoenixIndex - 1);
-                if (beforePhoenix.getRankPriority()
-                        > combination.getTopCard().getRankPriority()) {
-                    throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
+                int beforePhoenixRank = beforePhoenix.getRankPriority();
+                int combinationRank = newTopCard.getRankPriority();
+
+                if (beforePhoenixRank > combinationRank) {
+                    return 1;
                 }
+                if (beforePhoenixRank < combinationRank) {
+                    return -1;
+                }
+                return 0;
             }
         }
-        if (lastCombination.getTopCard().getRankPriority() > combination.getTopCard().getRankPriority()) {
-            throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
+        if (lastTopCard.getRankPriority() > newTopCard.getRankPriority()) {
+            return 1;
         }
+        if (lastTopCard.getRankPriority() < newTopCard.getRankPriority()) {
+            return -1;
+        }
+        return 0;
     }
 
     private void includeCallRank(Player player, Combination combination) {
