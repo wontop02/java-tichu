@@ -17,6 +17,8 @@ public class Round {
     private static final String ALREADY_CALLED_TICHU = "이미 티츄를 부른 플레이어가 존재합니다.";
     private static final String PLAYER_NOT_FOUND = "잘못된 플레이어 이름이 존재합니다.";
     private static final String NOT_FOUND_HAS_MAJHONG = "1 카드를 가진 플레이어가 존재하지 않습니다.";
+    private static final String NOT_FOUND_PLACE = "등수를 찾을 수 없습니다.";
+
     private final List<Player> players;
     private final Map<Place, Player> playerPlace = new HashMap<>();
     private Player lastPhaseWinner;
@@ -100,6 +102,10 @@ public class Round {
         lastPhaseWinner = phase.getPhaseWinner();
     }
 
+    public int getPhaseNumber() {
+        return phaseNumber;
+    }
+
     public void validatePlayerNames(List<String> names) {
         names.forEach(this::findPlayerByName);
     }
@@ -124,17 +130,30 @@ public class Round {
                 .orElseThrow(() -> new IllegalStateException(NOT_FOUND_HAS_MAJHONG));
     }
 
-    public void checkRoundPlace(Player player) {
+    public boolean checkRoundPlace(Player player) {
         if (player.getCardCount() != 0) {
-            return;
+            return false;
+        }
+        if (playerPlace.containsValue(player)) {
+            return false;
         }
         for (Place place : Place.values()) {
             if (!playerPlace.containsKey(place)) {
                 playerPlace.put(place, player);
-                break;
+                return true;
             }
         }
+        return false;
     }
+
+    public int getPlace(Player player) {
+        return playerPlace.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(player))
+                .map(entry -> entry.getKey().getPlace())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(NOT_FOUND_PLACE));
+    }
+
 
     public boolean isEndPlayer(Player player) {
         return playerPlace.containsValue(player);
