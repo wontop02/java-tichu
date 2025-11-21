@@ -28,7 +28,7 @@ public class Phase {
     private boolean isCallActive = false;
     private Player phaseWinner;
     private Combination lastCombination;
-    
+
     public Phase(Player startPlayer, List<Player> players) {
         this.startPlayer = startPlayer;
         this.players = new ArrayList<>(players);
@@ -51,7 +51,16 @@ public class Phase {
             if (!hasBeforeCard) {
                 return Rank.ONE;
             }
+            if (phaseCards.get(phoenixIndex - 1).isMahjong()) {
+                return Rank.ONE;
+            }
             return phaseCards.get(phoenixIndex - 1).getRank();
+        }
+        if (lastCombination.isMahjong()) {
+            return Rank.ONE;
+        }
+        if (lastCombination.isDragon()) {
+            return Rank.DRAGON;
         }
         return lastCombination.getTopRank();
     }
