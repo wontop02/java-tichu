@@ -17,6 +17,7 @@ public class Phase {
     private static final String MUST_STRONG_BOMB = "이전 폭탄보다 강한 폭탄만 낼 수 있습니다.";
     private static final String CANNOT_USE_BOMB = "폭탄은 첫 조합으로 낼 수 없습니다.";
     private static final String TEAM_MEMBER_NOT_FOUND = "팀원을 찾을 수 없습니다.";
+    private static final String INCOMPARABLE = "서로 다른 조합은 비교할 수 없습니다.";
 
     private final List<Player> players;
     private final Player startPlayer;
@@ -167,6 +168,7 @@ public class Phase {
         if (isCallActive) {
             includeCallRank(player, combination);
         }
+        // 기존에 조합이 없는 경우
         if (lastCombination == null) {
             if (combination.isDog()) {
                 useDog(player, combination);
@@ -175,8 +177,27 @@ public class Phase {
             registerCombination(player, combination);
             return;
         }
+        // 새 조합이 폭탄인 경우
+        if (combination.isBomb()) {
+            if (lastCombination.isBomb()) {
+                if (combination.compareTo(lastCombination) != 1) {
+                    throw new IllegalArgumentException(MUST_STRONG_BOMB);
+                }
+            }
+            registerCombination(player, combination);
+            return;
+        }
+        // 기존 조합은 폭탄인데 새 조합이 폭탄이 아닌 경우
         if (lastCombination.isBomb() && !combination.isBomb()) {
             throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
+        }
+        // 타입이 다른 경우
+        if (combination.getCombinationType() != lastCombination.getCombinationType()) {
+            throw new IllegalArgumentException(INCOMPARABLE);
+        }
+        // 카드 장수가 다른 경우
+        if (combination.getCards().size() != lastCombination.getCards().size()) {
+            throw new IllegalArgumentException(INCOMPARABLE);
         }
         if (combination.getCombinationType() == SINGLE
                 && lastCombination.getCombinationType() == SINGLE) {
@@ -185,6 +206,10 @@ public class Phase {
             }
             registerCombination(player, combination);
             return;
+        }
+        // 일반 조합 비교
+        if (combination.compareTo(lastCombination) != 1) {
+            throw new IllegalArgumentException(LOW_OR_SAME_COMBINATION);
         }
         registerCombination(player, combination);
     }
