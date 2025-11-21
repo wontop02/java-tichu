@@ -6,8 +6,6 @@ import tichu.enums.Special;
 import tichu.enums.Suit;
 
 public class Card implements Comparable<Card> {
-    private static final String CARD_RANK_NOT_EXIST = "카드 등급이 존재하지 않습니다.";
-
     private final Rank rank;
     private final Suit suit;
     private final Special special; // 일반카드면 null
@@ -75,11 +73,7 @@ public class Card implements Comparable<Card> {
 
     public int getRankPriority() {
         if (isSpecial()) {
-            if (special == Special.MAHJONG) {
-                // 1만 rank 1로 반환
-                return 1;
-            }
-            throw new IllegalArgumentException(CARD_RANK_NOT_EXIST);
+            return special.getPriority();
         }
         return rank.getPriority();
     }
