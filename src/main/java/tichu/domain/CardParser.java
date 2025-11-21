@@ -1,6 +1,8 @@
 package tichu.domain;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import tichu.enums.Rank;
@@ -33,7 +35,9 @@ public class CardParser {
     }
 
     public static List<String> fromCardsToStringList(List<Card> cards) {
-        return cards.stream()
+        List<Card> parsedCards = new ArrayList<>(cards);
+        Collections.sort(parsedCards);
+        return parsedCards.stream()
                 .map(CardParser::fromCard)
                 .toList();
     }
