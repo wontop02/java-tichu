@@ -3,7 +3,7 @@ package tichu.enums;
 import java.util.Arrays;
 
 public enum Rank {
-    // 봉 처음 냈을 때 전용
+    // 봉 처음 냈을 때, 1 냈을 때 전용
     ONE("1", 1),
 
     TWO("2", 2),
@@ -18,7 +18,10 @@ public enum Rank {
     JACK("J", 11),
     QUEEN("Q", 12),
     KING("K", 13),
-    ACE("A", 14);
+    ACE("A", 14),
+
+    // 용 전용 Rank
+    DRAGON("용", 15);
 
     private static final String INVALID_RANK = "해당 카드 등급은 존재하지 않습니다.";
 
