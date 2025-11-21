@@ -29,7 +29,7 @@ public class InputView {
     }
 
     public static String requestTradeCard(PlayerDto toPlayerDto) {
-        System.out.printf(REQUEST_TRADE_CARD, toPlayerDto.getName());
+        System.out.printf(REQUEST_TRADE_CARD, toPlayerDto.getStatus());
         return scanner.nextLine();
     }
 
