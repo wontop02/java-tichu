@@ -20,6 +20,7 @@ public class Round {
     private static final String NOT_FOUND_HAS_MAJHONG = "1 카드를 가진 플레이어가 존재하지 않습니다.";
     private static final String NOT_FOUND_PLACE = "등수를 찾을 수 없습니다.";
     private static final String NOT_FOUND_NEXT_PLAYER = "페이즈 시작이 가능한 플레이어가 없습니다.";
+    private static final String DOUBLE_WIN = "같은 팀이 1등과 2등을 차지해 라운드를 종료합니다.";
 
     private final List<Player> players;
     private final Map<Place, Player> playerPlace = new HashMap<>();
@@ -165,7 +166,7 @@ public class Round {
                     Player second = playerPlace.get(SECOND);
 
                     if (first.getTeam() == second.getTeam()) {
-                        throw new RoundEndSignal();
+                        throw new RoundEndSignal(DOUBLE_WIN);
                     }
                 }
                 return true;
