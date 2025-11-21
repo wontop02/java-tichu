@@ -48,4 +48,16 @@ public class CombinationEvaluatorTest {
         assertEquals(FULL_HOUSE, result.getType());
         assertEquals(Rank.ACE, result.getTopCard().getRank());
     }
+
+    @DisplayName("스트레이트에서 봉이 가장 큰 숫자를 대체한 경우 대체된 등급을 저장한다.")
+    @Test
+    void 스트레이트에서_봉이_가장_큰_숫자를_대체한_경우_대체된_등급을_저장한다() {
+        String input = "2s,3s,4s,5s,6s,7s,봉";
+        InputValidator.validateCardInput(input);
+        List<Card> cards = CardParser.fromStringToCardList(input);
+
+        CombinationResult result = CombinationEvaluator.evaluate(cards);
+
+        assertEquals(Rank.EIGHT, result.getTopRank());
+    }
 }

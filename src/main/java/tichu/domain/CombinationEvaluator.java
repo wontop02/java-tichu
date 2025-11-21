@@ -23,8 +23,9 @@ public class CombinationEvaluator {
         List<Card> sorted = new ArrayList<>(cards);
         Collections.sort(sorted);
 
+        // 싱글 Rank는 어차피 phase에서 다시 비교하기 때문에 무시됨
         if (isSingle(sorted)) {
-            return new CombinationResult(SINGLE, sorted.getLast());
+            return new CombinationResult(SINGLE, sorted.getLast(), sorted.getLast().getRank());
         }
 
         boolean hasPhoenix = containsPhoenix(sorted);
@@ -53,7 +54,9 @@ public class CombinationEvaluator {
             if (result == null || result.getType() == BOMB_FOUR_CARD || result.getType() == BOMB_STRAIGHT_FLUSH) {
                 continue;
             }
-            return result;
+            // Rank에만 대체된 Rank 넣어줌
+            Rank topRank = substituteCards.getLast().getRank();
+            return new CombinationResult(result.getType(), cards.getLast(), topRank);
         }
         return null;
     }
@@ -79,25 +82,25 @@ public class CombinationEvaluator {
 
     private static CombinationResult evaluateNormalCombination(List<Card> cards) {
         if (isPair(cards)) {
-            return new CombinationResult(PAIR, cards.getLast());
+            return new CombinationResult(PAIR, cards.getLast(), cards.getLast().getRank());
         }
         if (isTriple(cards)) {
-            return new CombinationResult(TRIPLE, cards.getLast());
+            return new CombinationResult(TRIPLE, cards.getLast(), cards.getLast().getRank());
         }
         if (isStraight(cards)) {
-            return new CombinationResult(STRAIGHT, cards.getLast());
+            return new CombinationResult(STRAIGHT, cards.getLast(), cards.getLast().getRank());
         }
         if (isFullHouse(cards)) {
-            return new CombinationResult(FULL_HOUSE, findTripleTopCard(cards));
+            return new CombinationResult(FULL_HOUSE, findTripleTopCard(cards), findTripleTopCard(cards).getRank());
         }
         if (isPairSequence(cards)) {
-            return new CombinationResult(PAIR_SEQUENCE, cards.getLast());
+            return new CombinationResult(PAIR_SEQUENCE, cards.getLast(), cards.getLast().getRank());
         }
         if (isBombFourCord(cards)) {
-            return new CombinationResult(BOMB_FOUR_CARD, cards.getLast());
+            return new CombinationResult(BOMB_FOUR_CARD, cards.getLast(), cards.getLast().getRank());
         }
         if (isBombStraightFlush(cards)) {
-            return new CombinationResult(BOMB_STRAIGHT_FLUSH, cards.getLast());
+            return new CombinationResult(BOMB_STRAIGHT_FLUSH, cards.getLast(), cards.getLast().getRank());
         }
         return null;
     }

@@ -24,13 +24,10 @@ public class Combination {
     public int compareTo(Combination other) {
         CombinationType thisType = combinationResult.getType();
         CombinationType otherType = other.combinationResult.getType();
-        if (this.isBomb() && !other.isBomb()) {
-            return 1;
+        if (this.isBomb() != other.isBomb()) {
+            throw new IllegalArgumentException(INCOMPARABLE);
         }
-        if (!this.isBomb() && other.isBomb()) {
-            return -1;
-        }
-        if (this.isBomb() && other.isBomb()) {
+        if (this.isBomb()) {
             return compareToBetweenBombs(other);
         }
         if (thisType != otherType) {
@@ -109,8 +106,8 @@ public class Combination {
     }
 
     private int compareByTopCard(Combination other) {
-        Card myTopCard = this.combinationResult.getTopCard();
-        Card otherTopCard = other.combinationResult.getTopCard();
-        return Integer.compare(myTopCard.getRankPriority(), otherTopCard.getRankPriority());
+        Rank myTopRank = this.combinationResult.getTopRank();
+        Rank otherTopRank = other.combinationResult.getTopRank();
+        return Integer.compare(myTopRank.getPriority(), otherTopRank.getPriority());
     }
 }
