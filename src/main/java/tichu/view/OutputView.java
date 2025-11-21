@@ -23,6 +23,8 @@ public class OutputView {
     private static final String PRINT_CURRENT_CARD_COUNT = "[현재 카드 개수]";
     private static final String PRINT_CURRENT_TABLE_COUNT = "[테이블 카드]";
     private static final String PRINT_CURRENT_CALL = "**콜: %s**\n";
+    private static final String PRINT_PHASE_START = "%d 페이즈를 시작합니다.";
+    private static final String PRINT_ROUND_START = "%d 라운드를 시작합니다.";
     private static final String PRINT_PHASE_END = "%s님이 이번 페이즈를 승리했습니다.\n";
     private static final String PRINT_CARD_COUNT_ZERO = "%s님이 모든 카드를 소진했습니다. ";
     private static final String PRINT_PLACE = "이번 라운드 %d등은 %s님입니다.\n";
@@ -62,6 +64,7 @@ public class OutputView {
         direction = direction.concat(PRINT_ARROW);
         direction = direction.concat(playerDtos.get(0).getName());
         System.out.printf(PRINT_ALERT_DIRECTION, direction);
+        System.out.println();
     }
 
     private static void printPlayerNames(List<PlayerDto> team) {
@@ -79,6 +82,7 @@ public class OutputView {
         for (PlayerDto playerDto : playerDtos) {
             printCards(playerDto.getMyCards());
         }
+        System.out.println();
     }
 
     public static void printCards(List<String> cards) {
@@ -95,6 +99,7 @@ public class OutputView {
 
     public static void printFirstPlayer(PlayerDto playerDto) {
         System.out.printf(PRINT_FIRST_PLAYER, playerStatus(playerDto));
+        System.out.println();
     }
 
     public static void printTurnPlayer(PlayerDto playerDto) {
@@ -106,6 +111,7 @@ public class OutputView {
         for (PlayerDto playerDto : playerDtos) {
             System.out.printf(CARD_COUNT_FORMAT, playerStatus(playerDto), playerDto.getCardCount());
         }
+        System.out.println();
     }
 
     public static void printTurn(PlayerDto playerDto) {
@@ -123,10 +129,19 @@ public class OutputView {
                 phaseDto.getLastCombinationTopRank(),
                 phaseDto.getLastCombinationType());
         printCards(cards);
+        System.out.println();
+    }
+
+    public static void printPhaseStart(int currentPhase) {
+        System.out.printf(PRINT_PHASE_START, int currentPhase);
     }
 
     public static void printPhaseEnd(PlayerDto playerDto) {
         System.out.printf(PRINT_PHASE_END, playerStatus(playerDto));
+    }
+
+    public static void printRoundStart(int currentRound) {
+        System.out.printf(PRINT_ROUND_START, int currentRound);
     }
 
     public static void printRoundEnd(PlayerDto playerDto, int place) {
@@ -134,12 +149,14 @@ public class OutputView {
             System.out.printf(PRINT_CARD_COUNT_ZERO, playerStatus(playerDto));
         }
         System.out.printf(PRINT_PLACE, place, playerStatus(playerDto));
+        System.out.println();
     }
 
     public static void printTeamScore(Map<Team, Integer> currentTeamScore) {
         System.out.println(PRINT_SCORE);
         System.out.println(PRINT_RED_TEAM + currentTeamScore.get(RED));
         System.out.println(PRINT_BLUE_TEAM + currentTeamScore.get(BLUE));
+        System.out.println();
     }
 
     private static String playerStatus(PlayerDto playerDto) {
