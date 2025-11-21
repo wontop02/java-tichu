@@ -183,7 +183,6 @@ public class Round {
                 .orElseThrow(() -> new IllegalStateException(NOT_FOUND_PLACE));
     }
 
-
     public boolean isEndPlayer(Player player) {
         return playerPlace.containsValue(player);
     }
@@ -235,7 +234,7 @@ public class Round {
         Player second = playerPlace.get(SECOND);
         if (first.getTeam() == second.getTeam()) {
             Team team = first.getTeam();
-            cardScore.put(team, cardScore.get(team) + 200);
+            cardScore.put(team, 200);
             return cardScore;
         }
 
@@ -246,18 +245,26 @@ public class Round {
             otherTeam = BLUE;
         }
 
-        // 1등에게 획득한 카드 줌
+        // 1등에게 얻은 점수 줌
         first.addAcquireCards(fourth.getAcquiredCards());
         fourth.clearAcquireCards();
-        // 다른 팀에게 마지막까지 들고 있던 카드 줌
 
+        // 다른 팀에게 마지막까지 들고 있던 카드 점수 줌
         int fourthHandScore = fourth.calculateMyCardScore();
         cardScore.put(otherTeam, cardScore.get(otherTeam) + fourthHandScore);
         fourth.clearMyCards();
 
         for (Player player : players) {
+            if (player == fourth) {
+                continue;
+            }
             int score = player.calculateAcquireCardScore();
-            cardScore.put(player.getTeam(), cardScore.get(player.getTeam()) + score);
+            cardScore.put(player.getTeam(),
+                    cardScore.get(player.getTeam()) + score);
+        }
+        for (Player player : players) {
+            player.clearMyCards();
+            player.clearAcquireCards();
         }
         return cardScore;
     }
