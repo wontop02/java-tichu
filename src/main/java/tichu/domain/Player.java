@@ -48,6 +48,11 @@ public class Player {
         return isLargeTichu || isSmallTichu;
     }
 
+    public void resetTichuStatus() {
+        isLargeTichu = false;
+        isSmallTichu = false;
+    }
+
     public void addMyCards(List<Card> card) {
         myCards.addAll(card);
         Collections.sort(myCards);

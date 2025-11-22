@@ -226,6 +226,11 @@ public class Round {
                 applyTichuScore(teamScore, player, first, 100);
             }
         }
+        for (Player player : players) {
+            player.clearMyCards();
+            player.clearAcquireCards();
+            player.resetTichuStatus();
+        }
         return teamScore;
     }
 
@@ -248,10 +253,6 @@ public class Round {
         if (first.getTeam() == second.getTeam()) {
             Team team = first.getTeam();
             cardScore.put(team, 200);
-            for (Player player : players) {
-                player.clearMyCards();
-                player.clearAcquireCards();
-            }
             return cardScore;
         }
 
@@ -278,10 +279,6 @@ public class Round {
             int score = player.calculateAcquireCardScore();
             cardScore.put(player.getTeam(),
                     cardScore.get(player.getTeam()) + score);
-        }
-        for (Player player : players) {
-            player.clearMyCards();
-            player.clearAcquireCards();
         }
         return cardScore;
     }
