@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import tichu.enums.Place;
+import tichu.enums.Rank;
 import tichu.enums.Team;
 import tichu.exception.RoundEndSignal;
 
@@ -23,6 +24,8 @@ public class Round {
     private static final String DOUBLE_WIN = "같은 팀이 1등과 2등을 차지해 라운드를 종료합니다.";
 
     private final List<Player> players;
+    private Rank calledRank = null;
+    private boolean isCallActive = false;
     private final Map<Place, Player> playerPlace = new HashMap<>();
     private Player lastPhaseWinner;
 
@@ -47,7 +50,7 @@ public class Round {
 
     public void addLargeTichu(List<String> names) {
         for (String name : names) {
-            Player player = findPlayerByName(name); // String → Player
+            Player player = findPlayerByName(name);
             player.callLargeTichu();
         }
     }
@@ -89,13 +92,23 @@ public class Round {
         Player startPlayer;
         if (phaseNumber == 1) {
             startPlayer = decideStartPlayer();
-            return new Phase(startPlayer, players);
+            return new Phase(startPlayer, players, calledRank, isCallActive);
         }
         startPlayer = lastPhaseWinner;
         if (isEndPlayer(startPlayer)) {
             startPlayer = findNextNotEndPlayer(startPlayer);
         }
-        return new Phase(startPlayer, players);
+        return new Phase(startPlayer, players, calledRank, isCallActive);
+    }
+
+    public void callRank(Rank rank) {
+        this.calledRank = rank;
+        this.isCallActive = true;
+    }
+
+    public void callEnd() {
+        this.calledRank = null;
+        this.isCallActive = false;
     }
 
     private Player findNextNotEndPlayer(Player startPlayer) {
@@ -235,6 +248,10 @@ public class Round {
         if (first.getTeam() == second.getTeam()) {
             Team team = first.getTeam();
             cardScore.put(team, 200);
+            for (Player player : players) {
+                player.clearMyCards();
+                player.clearAcquireCards();
+            }
             return cardScore;
         }
 

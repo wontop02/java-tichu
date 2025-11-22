@@ -30,9 +30,11 @@ public class Phase {
     private Player phaseWinner;
     private Combination lastCombination;
 
-    public Phase(Player startPlayer, List<Player> players) {
+    public Phase(Player startPlayer, List<Player> players, Rank callRank, boolean isCallActive) {
         this.startPlayer = startPlayer;
         this.players = new ArrayList<>(players);
+        this.calledRank = callRank;
+        this.isCallActive = isCallActive;
         this.turnIndex = players.indexOf(startPlayer);
         this.passed = new boolean[4];
     }
@@ -71,7 +73,7 @@ public class Phase {
         nextTurn();
     }
 
-    public void useBomb(String name, List<Card> cards) {
+    public void useBomb(String name, List<Card> cards, Round round) {
         Player player = findPlayer(name);
         Combination bombCombination = new Combination(cards);
         if (lastCombination == null) {
@@ -84,6 +86,9 @@ public class Phase {
             throw new IllegalArgumentException(MUST_STRONG_BOMB);
         }
         lastCombination = bombCombination;
+        if (bombCombination.hasCallRank(calledRank)) {
+            round.callEnd();
+        }
         turnIndex = players.indexOf(player);
         phaseWinner = player;
         passed = new boolean[4];
@@ -164,9 +169,9 @@ public class Phase {
         player.addAcquireCards(phaseCards);
     }
 
-    public void evaluateCombination(Player player, Combination combination) {
+    public void evaluateCombination(Player player, Combination combination, Round round) {
         if (isCallActive) {
-            includeCallRank(player, combination);
+            includeCallRank(player, combination, round);
         }
         // 기존에 조합이 없는 경우
         if (lastCombination == null) {
@@ -261,11 +266,6 @@ public class Phase {
         }
     }
 
-    private void callEnd() {
-        calledRank = null;
-        isCallActive = false;
-    }
-
     public Player findPlayer(String name) {
         return players.stream()
                 .filter(p -> p.getName().equals(name))
@@ -315,13 +315,13 @@ public class Phase {
         return 0;
     }
 
-    private void includeCallRank(Player player, Combination combination) {
+    private void includeCallRank(Player player, Combination combination, Round round) {
         if (!combination.hasCallRank(calledRank)
                 && player.hasStrongThanCombinationWithCall(lastCombination, calledRank)) {
             throw new IllegalArgumentException(MUST_COMBINATION_INCLUDE_CALL);
         }
         if (combination.hasCallRank(calledRank)) {
-            callEnd();
+            round.callEnd();
         }
     }
 }

@@ -153,6 +153,8 @@ public class TichuGameController {
                            int[] nextDirections) {
         while (true) {
             try {
+                PlayerDto fromPlayerDto = PlayerDto.from(fromPlayer);
+                OutputView.printPlayerAllCards(fromPlayerDto);
                 for (int nextDirection : nextDirections) {
                     giveCard(players, received, i, fromPlayer, toSend, nextDirection);
                 }
@@ -257,7 +259,7 @@ public class TichuGameController {
 
         // 테이블 조합 출력
         if (lastCombination == null) {
-            OutputView.printTableCombination();
+            OutputView.printTableCombination(phaseDto);
         }
         if (lastCombination != null) {
             List<String> lastCards = CardParser.fromCardsToStringList(lastCombination.getCards());
@@ -294,7 +296,7 @@ public class TichuGameController {
                     inputPassPlayer(phase, player);
                     return;
                 }
-                inputCombination(phase, player, input);
+                inputCombination(round, phase, player, input);
 
                 if (round.checkRoundPlace(player)) {
                     int place = round.getPlace(player);
@@ -311,7 +313,7 @@ public class TichuGameController {
         }
     }
 
-    private void inputCombination(Phase phase, Player player, String input) {
+    private void inputCombination(Round round, Phase phase, Player player, String input) {
         InputValidator.validateCardInput(input);
 
         List<Card> cards = CardParser.fromStringToCardList(input);
@@ -320,7 +322,7 @@ public class TichuGameController {
         }
 
         Combination combination = new Combination(cards);
-        phase.evaluateCombination(player, combination);
+        phase.evaluateCombination(player, combination, round);
 
         if (combination.isDog()) {
             phase.useDog(player, combination);
@@ -358,7 +360,7 @@ public class TichuGameController {
                 }
                 InputValidator.validatePlayerName(name);
                 Player player = phase.findPlayer(name);
-                inputBombCard(phase, name, player);
+                inputBombCard(round, phase, name, player);
                 if (round.checkRoundPlace(player)) {
                     int place = round.getPlace(player);
                     OutputView.printRoundEnd(PlayerDto.from(player), place);
@@ -374,9 +376,11 @@ public class TichuGameController {
         }
     }
 
-    private void inputBombCard(Phase phase, String name, Player player) {
+    private void inputBombCard(Round round, Phase phase, String name, Player player) {
         while (true) {
             try {
+                PlayerDto playerDto = PlayerDto.from(player);
+                OutputView.printPlayerAllCards(playerDto);
                 String bomb = InputView.requestBomb();
                 if (bomb.equals("x")) {
                     return;
@@ -386,7 +390,7 @@ public class TichuGameController {
                 for (Card card : cards) {
                     player.validateContainMyCard(card);
                 }
-                phase.useBomb(name, cards);
+                phase.useBomb(name, cards, round);
                 return;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
