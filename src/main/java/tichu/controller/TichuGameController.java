@@ -18,6 +18,7 @@ import tichu.dto.PlayerDto;
 import tichu.dto.RoundDto;
 import tichu.enums.Rank;
 import tichu.enums.Team;
+import tichu.exception.PhaseEndSignal;
 import tichu.exception.RoundEndSignal;
 import tichu.util.InputValidator;
 import tichu.view.InputView;
@@ -27,7 +28,7 @@ public class TichuGameController {
     private static final String LARGE = "라지";
     private static final String SMALL = "스몰";
     private static final String ALREADY_SELECTED_TRADE_CARD = "이전 참가자에게 준 카드를 선택할 수 없습니다.";
-    private static final String ROUND_END = "라운드를 종료합니다.";
+    private static final String ROUND_END = "\n라운드를 종료합니다.";
 
     public TichuGameController() {
     }
@@ -57,9 +58,10 @@ public class TichuGameController {
             printAllPlayersCards(round);
 
             Map<Team, Integer> roundScore = playRound(round);
-            OutputView.printTeamScore(roundScore);
+            OutputView.printRoundScore(roundScore);
 
-            tichuGame.addTeamScore(roundScore);
+            Map<Team, Integer> teamScore = tichuGame.addTeamScore(roundScore);
+            OutputView.printTeamScore(teamScore);
         }
         Team winner = tichuGame.tichuGameWinner();
         OutputView.printWinner(winner);
@@ -194,10 +196,11 @@ public class TichuGameController {
     }
 
     public Map<Team, Integer> playRound(Round round) {
+        Phase phase = null;
         while (true) {
             try {
                 while (!round.isRoundEnd()) {
-                    Phase phase = round.startPhase();
+                    phase = round.startPhase();
                     if (round.getPhaseNumber() == 1) {
                         OutputView.printFirstPlayer(PlayerDto.from(phase.getCurrentPlayer()));
                     }
@@ -206,6 +209,7 @@ public class TichuGameController {
                     OutputView.printPhaseEnd(PlayerDto.from(phase.getPhaseWinner()));
                     if (phase.winWithDragon()) {
                         inputReceivePlayer(round, phase);
+                        continue;
                     }
                     round.endPhase(phase);
                 }
@@ -213,13 +217,19 @@ public class TichuGameController {
                 OutputView.printRoundEnd(PlayerDto.from(fourth), 4);
 
                 return round.calculateScore();
+            } catch (PhaseEndSignal e) {
+                round.endPhaseWithDog(phase);
+                OutputView.printMessage(e.getMessage());
             } catch (RoundEndSignal e) {
                 // 원투면 4등이 없을 수도 있음
+                if (phase != null) {
+                    round.endPhase(phase);
+                }
                 if (round.getPlayerPlace().containsKey(FOURTH)) {
                     Player fourth = round.getPlayerPlace().get(FOURTH);
                     OutputView.printRoundEnd(PlayerDto.from(fourth), 4);
                 }
-                OutputView.printRoundEndMessage(e.getMessage());
+                OutputView.printMessage(e.getMessage());
                 return round.calculateScore();
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
@@ -325,10 +335,6 @@ public class TichuGameController {
         Combination combination = new Combination(cards);
         phase.evaluateCombination(player, combination, round);
 
-        if (combination.isDog()) {
-            phase.useDog(player, combination);
-            OutputView.printDog();
-        }
         if (combination.hasMahjong()) {
             inputCallRank(phase, round);
         }
