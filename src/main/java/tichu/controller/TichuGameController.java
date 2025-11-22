@@ -15,6 +15,7 @@ import tichu.domain.Round;
 import tichu.domain.TichuGame;
 import tichu.dto.PhaseDto;
 import tichu.dto.PlayerDto;
+import tichu.dto.RoundDto;
 import tichu.enums.Rank;
 import tichu.enums.Team;
 import tichu.exception.RoundEndSignal;
@@ -256,14 +257,14 @@ public class TichuGameController {
     private void printTurnStatus(Round round, Phase phase) {
         Combination lastCombination = phase.getLastCombination();
         PhaseDto phaseDto = PhaseDto.from(phase);
-
+        RoundDto roundDto = RoundDto.from(round);
         // 테이블 조합 출력
         if (lastCombination == null) {
-            OutputView.printTableCombination(phaseDto);
+            OutputView.printTableCombination(roundDto);
         }
         if (lastCombination != null) {
             List<String> lastCards = CardParser.fromCardsToStringList(lastCombination.getCards());
-            OutputView.printTableCombination(phaseDto, lastCards);
+            OutputView.printTableCombination(roundDto, phaseDto, lastCards);
         }
         // 현재 카드 개수 출력
         List<PlayerDto> dtos = round.getPlayers().stream()
@@ -283,8 +284,8 @@ public class TichuGameController {
         handleTurnInput(round, phase, player);
     }
 
-    private void inputPassPlayer(Phase phase, Player player) {
-        phase.validatePass(player);
+    private void inputPassPlayer(Phase phase, Player player, Round round) {
+        phase.validatePass(player, round);
         phase.pass(player);
     }
 
@@ -293,7 +294,7 @@ public class TichuGameController {
             try {
                 String input = InputView.requestCombination();
                 if (input.equals("p")) {
-                    inputPassPlayer(phase, player);
+                    inputPassPlayer(phase, player, round);
                     return;
                 }
                 inputCombination(round, phase, player, input);
@@ -329,11 +330,11 @@ public class TichuGameController {
             OutputView.printDog();
         }
         if (combination.hasMahjong()) {
-            inputCallRank(phase);
+            inputCallRank(phase, round);
         }
     }
 
-    private void inputCallRank(Phase phase) {
+    private void inputCallRank(Phase phase, Round round) {
         while (true) {
             try {
                 String input = InputView.requestCallRank();
@@ -343,7 +344,7 @@ public class TichuGameController {
                 InputValidator.validateCallRank(input);
                 Rank rank = Rank.valueOfRank(input.toUpperCase());
 
-                phase.callRank(rank);
+                round.callRank(rank);
                 return;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());

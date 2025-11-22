@@ -25,23 +25,14 @@ public class Phase {
     private boolean[] passed;
 
     private int turnIndex;
-    private Rank calledRank;
-    private boolean isCallActive;
     private Player phaseWinner;
     private Combination lastCombination;
 
-    public Phase(Player startPlayer, List<Player> players, Rank callRank, boolean isCallActive) {
+    public Phase(Player startPlayer, List<Player> players) {
         this.startPlayer = startPlayer;
         this.players = new ArrayList<>(players);
-        this.calledRank = callRank;
-        this.isCallActive = isCallActive;
         this.turnIndex = players.indexOf(startPlayer);
         this.passed = new boolean[4];
-    }
-
-    public void callRank(Rank rank) {
-        calledRank = rank;
-        isCallActive = true;
     }
 
     public Rank getTopRank() {
@@ -76,6 +67,7 @@ public class Phase {
     public void useBomb(String name, List<Card> cards, Round round) {
         Player player = findPlayer(name);
         Combination bombCombination = new Combination(cards);
+        Rank calledRank = round.getCalledRank();
         if (lastCombination == null) {
             throw new IllegalArgumentException(CANNOT_USE_BOMB);
         }
@@ -88,7 +80,6 @@ public class Phase {
         lastCombination = bombCombination;
         if (bombCombination.hasCallRank(calledRank)) {
             round.callEnd();
-            phaseCallEnd();
         }
         turnIndex = players.indexOf(player);
         phaseWinner = player;
@@ -154,14 +145,6 @@ public class Phase {
         return lastCombination;
     }
 
-    public boolean isCallActive() {
-        return isCallActive;
-    }
-
-    public Rank getCalledRank() {
-        return calledRank;
-    }
-
     public void giveCardsToPlayerWithDragon(String name) {
         Player player = findPlayer(name);
         if (player.getTeam() == phaseWinner.getTeam()) {
@@ -171,7 +154,7 @@ public class Phase {
     }
 
     public void evaluateCombination(Player player, Combination combination, Round round) {
-        if (isCallActive) {
+        if (round.isCallActive()) {
             includeCallRank(player, combination, round);
         }
         // 기존에 조합이 없는 경우
@@ -232,9 +215,9 @@ public class Phase {
     }
 
 
-    public void validatePass(Player player) {
+    public void validatePass(Player player, Round round) {
         validateStartPlayerPass();
-        validateHasCallCardPass(player);
+        validateHasCallCardPass(player, round);
     }
 
     private void validateStartPlayerPass() {
@@ -243,11 +226,11 @@ public class Phase {
         }
     }
 
-    private void validateHasCallCardPass(Player player) {
-        if (!isCallActive) {
+    private void validateHasCallCardPass(Player player, Round round) {
+        if (!round.isCallActive()) {
             return;
         }
-        if (player.hasStrongThanCombinationWithCall(lastCombination, calledRank)) {
+        if (player.hasStrongThanCombinationWithCall(lastCombination, round.getCalledRank())) {
             throw new IllegalArgumentException(MUST_COMBINATION_INCLUDE_CALL);
         }
     }
@@ -317,18 +300,13 @@ public class Phase {
     }
 
     private void includeCallRank(Player player, Combination combination, Round round) {
+        Rank calledRank = round.getCalledRank();
         if (!combination.hasCallRank(calledRank)
                 && player.hasStrongThanCombinationWithCall(lastCombination, calledRank)) {
             throw new IllegalArgumentException(MUST_COMBINATION_INCLUDE_CALL);
         }
         if (combination.hasCallRank(calledRank)) {
             round.callEnd();
-            phaseCallEnd();
         }
-    }
-
-    private void phaseCallEnd() {
-        calledRank = null;
-        isCallActive = false;
     }
 }

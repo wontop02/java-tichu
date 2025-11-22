@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import tichu.dto.PhaseDto;
 import tichu.dto.PlayerDto;
+import tichu.dto.RoundDto;
 import tichu.enums.Team;
 
 public class OutputView {
@@ -133,10 +134,10 @@ public class OutputView {
         System.out.println(PRINT_DOG);
     }
 
-    public static void printTableCombination(PhaseDto phaseDto, List<String> cards) {
+    public static void printTableCombination(RoundDto roundDto, PhaseDto phaseDto, List<String> cards) {
         System.out.println(PRINT_CURRENT_TABLE_CARD);
-        if (phaseDto.isCallActive()) {
-            System.out.printf(PRINT_CURRENT_CALL, phaseDto.getCalledRank());
+        if (roundDto.isCallActive()) {
+            System.out.printf(PRINT_CURRENT_CALL, roundDto.getCalledRank());
         }
         if (phaseDto.getLastCombinationType() == null) {
             System.out.println(PRINT_NONE_TABLE_CARD);
@@ -150,8 +151,11 @@ public class OutputView {
         System.out.println();
     }
 
-    public static void printTableCombination() {
+    public static void printTableCombination(RoundDto roundDto) {
         System.out.println(PRINT_CURRENT_TABLE_CARD);
+        if (roundDto.isCallActive()) {
+            System.out.printf(PRINT_CURRENT_CALL, roundDto.getCalledRank());
+        }
         System.out.println(PRINT_NONE_TABLE_CARD);
     }
 

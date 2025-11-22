@@ -3,7 +3,6 @@ package tichu.domain;
 import static tichu.enums.Place.FIRST;
 import static tichu.enums.Place.FOURTH;
 import static tichu.enums.Place.SECOND;
-import static tichu.enums.Place.THIRD;
 import static tichu.enums.Team.BLUE;
 import static tichu.enums.Team.RED;
 
@@ -28,13 +27,6 @@ public class Round {
     private boolean isCallActive = false;
     private final Map<Place, Player> playerPlace = new HashMap<>();
     private Player lastPhaseWinner;
-
-    private static final Place[] ORDER = {
-            FIRST,
-            SECOND,
-            THIRD,
-            FOURTH
-    };
 
     private Deck deck;
     private int phaseNumber = 0;
@@ -92,13 +84,13 @@ public class Round {
         Player startPlayer;
         if (phaseNumber == 1) {
             startPlayer = decideStartPlayer();
-            return new Phase(startPlayer, players, calledRank, isCallActive);
+            return new Phase(startPlayer, players);
         }
         startPlayer = lastPhaseWinner;
         if (isEndPlayer(startPlayer)) {
             startPlayer = findNextNotEndPlayer(startPlayer);
         }
-        return new Phase(startPlayer, players, calledRank, isCallActive);
+        return new Phase(startPlayer, players);
     }
 
     public void callRank(Rank rank) {
@@ -123,6 +115,14 @@ public class Round {
             }
         }
         throw new IllegalStateException(NOT_FOUND_NEXT_PLAYER);
+    }
+
+    public Rank getCalledRank() {
+        return calledRank;
+    }
+
+    public boolean isCallActive() {
+        return isCallActive;
     }
 
     public void endPhase(Phase phase) {
