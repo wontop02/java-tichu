@@ -6,18 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 import tichu.enums.Rank;
 import tichu.enums.Team;
+import tichu.exception.PhaseEndSignal;
 
 public class Phase {
     private static final String LOW_OR_SAME_COMBINATION = "이전 조합보다 낮거나 같은 조합을 낼 수 없습니다.";
     private static final String START_PLAYER_CANNOT_PASS = "선 플레이어는 패스할 수 없습니다.";
     private static final String MUST_COMBINATION_INCLUDE_CALL = "콜을 포함한 조합을 내야 합니다.";
     private static final String CANNOT_SELECT_SAME_TEAM = "같은 팀원은 선택할 수 없습니다.";
+    private static final String CANNOT_SELECT_END_PLAYER = "이미 라운드를 종료한 플레이어는 선택할 수 없습니다.";
     private static final String PLAYER_NOT_FOUND = "잘못된 플레이어 이름이 존재합니다.";
     private static final String NOT_BOMB = "포 카드나 스트레이트 플러쉬가 아닙니다.";
     private static final String MUST_STRONG_BOMB = "이전 폭탄보다 강한 폭탄만 낼 수 있습니다.";
     private static final String CANNOT_USE_BOMB = "폭탄은 첫 조합으로 낼 수 없습니다.";
     private static final String TEAM_MEMBER_NOT_FOUND = "팀원을 찾을 수 없습니다.";
     private static final String INCOMPARABLE = "서로 다른 조합은 비교할 수 없습니다.";
+    private static final String USE_DOG = "개를 사용했습니다. 같은 팀원에게 선이 넘어갑니다.";
 
     private final List<Player> players;
     private final Player startPlayer;
@@ -92,18 +95,10 @@ public class Phase {
     }
 
     public void useDog(Player player, Combination combination) {
-        lastCombination = null;
-        phaseWinner = null;
-
-        Player otherMember = findOtherTeamMember(player);
-        turnIndex = players.indexOf(otherMember);
-
         player.removeMyCards(combination.getCards());
         phaseCards.addAll(combination.getCards());
-        passed = new boolean[4];
-        if (otherMember.getCardCount() == 0) {
-            nextTurn();
-        }
+        phaseWinner = player;
+        throw new PhaseEndSignal(USE_DOG);
     }
 
     private Player findOtherTeamMember(Player player) {
@@ -137,18 +132,26 @@ public class Phase {
         return phaseCards.getLast().isDragon();
     }
 
+    public Combination getLastCombination() {
+        return lastCombination;
+    }
+
     public void giveCardsToWinner() {
         phaseWinner.addAcquireCards(phaseCards);
     }
 
-    public Combination getLastCombination() {
-        return lastCombination;
+    public Player giveCardsUseDogPlayer() {
+        phaseWinner.addAcquireCards(phaseCards);
+        return findOtherTeamMember(phaseWinner);
     }
 
     public void giveCardsToPlayerWithDragon(String name) {
         Player player = findPlayer(name);
         if (player.getTeam() == phaseWinner.getTeam()) {
             throw new IllegalArgumentException(CANNOT_SELECT_SAME_TEAM);
+        }
+        if (player.getCardCount() == 0) {
+            throw new IllegalArgumentException(CANNOT_SELECT_END_PLAYER);
         }
         player.addAcquireCards(phaseCards);
     }
