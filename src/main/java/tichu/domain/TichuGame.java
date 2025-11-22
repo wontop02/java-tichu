@@ -11,6 +11,7 @@ import java.util.Map;
 import tichu.enums.Team;
 
 public class TichuGame {
+    private static final int GOAL_SCORE = 1000;
     private static final String INCORRECT_PLAYER_NUMBER = "참가자 수는 반드시 4명이어야 합니다.";
 
     private final List<Player> playersWithDirection;
@@ -52,13 +53,14 @@ public class TichuGame {
         return players;
     }
 
-    public void addTeamScore(Map<Team, Integer> roundScore) {
+    public Map<Team, Integer> addTeamScore(Map<Team, Integer> roundScore) {
         teamScore.put(RED, teamScore.get(RED) + roundScore.get(RED));
         teamScore.put(BLUE, teamScore.get(BLUE) + roundScore.get(BLUE));
+        return Map.copyOf(teamScore);
     }
 
     public boolean isEndTichuGame() {
-        if (teamScore.get(RED) >= 1000 || teamScore.get(BLUE) >= 1000) {
+        if (teamScore.get(RED) >= GOAL_SCORE || teamScore.get(BLUE) >= GOAL_SCORE) {
             return true;
         }
         return false;
@@ -73,8 +75,8 @@ public class TichuGame {
     }
 
     public Team tichuGameWinner() {
-        boolean redReached = teamScore.get(RED) >= 1000;
-        boolean blueReached = teamScore.get(BLUE) >= 1000;
+        boolean redReached = teamScore.get(RED) >= GOAL_SCORE;
+        boolean blueReached = teamScore.get(BLUE) >= GOAL_SCORE;
 
         if (redReached && !blueReached) {
             return RED;
