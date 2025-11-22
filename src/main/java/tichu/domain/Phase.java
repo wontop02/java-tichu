@@ -25,8 +25,8 @@ public class Phase {
     private boolean[] passed;
 
     private int turnIndex;
-    private Rank calledRank = null;
-    private boolean isCallActive = false;
+    private Rank calledRank;
+    private boolean isCallActive;
     private Player phaseWinner;
     private Combination lastCombination;
 
@@ -88,6 +88,7 @@ public class Phase {
         lastCombination = bombCombination;
         if (bombCombination.hasCallRank(calledRank)) {
             round.callEnd();
+            phaseCallEnd();
         }
         turnIndex = players.indexOf(player);
         phaseWinner = player;
@@ -322,6 +323,12 @@ public class Phase {
         }
         if (combination.hasCallRank(calledRank)) {
             round.callEnd();
+            phaseCallEnd();
         }
+    }
+
+    private void phaseCallEnd() {
+        calledRank = null;
+        isCallActive = false;
     }
 }
