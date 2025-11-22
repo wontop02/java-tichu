@@ -56,7 +56,8 @@ public class CombinationEvaluator {
             }
             // Rank에만 대체된 Rank 넣어줌
             Rank topRank = substituteCards.getLast().getRank();
-            return new CombinationResult(result.getType(), cards.getLast(), topRank);
+            Card topCard = substituteCards.getLast();
+            return new CombinationResult(result.getType(), topCard, topRank);
         }
         return null;
     }
