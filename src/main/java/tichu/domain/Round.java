@@ -20,7 +20,7 @@ public class Round {
     private static final String NOT_FOUND_HAS_MAJHONG = "1 카드를 가진 플레이어가 존재하지 않습니다.";
     private static final String NOT_FOUND_PLACE = "등수를 찾을 수 없습니다.";
     private static final String NOT_FOUND_NEXT_PLAYER = "페이즈 시작이 가능한 플레이어가 없습니다.";
-    private static final String DOUBLE_WIN = "같은 팀이 1등과 2등을 차지해 라운드를 종료합니다.";
+    private static final String DOUBLE_WIN = "\n같은 팀이 1등과 2등을 차지해 라운드를 종료합니다.";
 
     private final List<Player> players;
     private Rank calledRank = null;
@@ -135,6 +135,10 @@ public class Round {
         lastPhaseWinner = phase.getPhaseWinner();
     }
 
+    public void endPhaseWithDog(Phase phase) {
+        lastPhaseWinner = phase.giveCardsUseDogPlayer();
+    }
+
     public int getPhaseNumber() {
         return phaseNumber;
     }
@@ -231,7 +235,7 @@ public class Round {
             player.clearAcquireCards();
             player.resetTichuStatus();
         }
-        return teamScore;
+        return Map.copyOf(teamScore);
     }
 
     private void applyTichuScore(Map<Team, Integer> teamScore, Player player, Player first, int point) {
