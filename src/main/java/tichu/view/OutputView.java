@@ -23,7 +23,7 @@ public class OutputView {
     private static final String PRINT_CARD_TRADE_END = "\n카드 교환이 완료되었습니다.";
     private static final String PRINT_FIRST_PLAYER = "\n%s님이 선으로 시작합니다.\n";
     private static final String PRINT_CURRENT_CARD_COUNT = "[현재 카드 개수]";
-    private static final String PRINT_CURRENT_TABLE_CARD = "[테이블 카드]";
+    private static final String PRINT_CURRENT_TABLE_CARD = "\n[테이블 카드]";
     private static final String PRINT_NONE_TABLE_CARD = "(테이블 카드 없음)\n";
     private static final String PRINT_CURRENT_CALL = "**콜: %s**\n";
     private static final String PRINT_PHASE_START = "%d 페이즈를 시작합니다.\n";
@@ -31,10 +31,10 @@ public class OutputView {
     private static final String PRINT_PHASE_END = "\n%s님이 이번 페이즈를 승리했습니다.\n";
     private static final String PRINT_CARD_COUNT_ZERO = "%s님이 모든 카드를 소진했습니다. ";
     private static final String PRINT_PLACE = "이번 라운드 %d등은 %s님입니다.\n";
-    private static final String PRINT_SCORE = "점수 계산이 완료되었습니다.\n[현재 점수]";
+    private static final String PRINT_ROUND_SCORE = "점수 계산이 완료되었습니다.\n[현재 라운드 점수]";
+    private static final String PRINT_GAME_SCORE = "[총 게임 점수]";
     private static final String PRINT_WINNER = "%s팀이 승리했습니다! 티츄 게임을 종료합니다.\n";
     private static final String PRINT_DRAW = "무승부로 티츄 게임을 종료합니다.\n";
-    private static final String PRINT_DOG = "개를 사용했습니다. 같은 팀원에게 선이 넘어갑니다.\n";
 
     private static final String PLAYER_CARD_LIST_FORMAT = "%s: %s\n";
     private static final String LAST_COMBINATION_FORMAT = "%s: %s %s\n";
@@ -48,7 +48,7 @@ public class OutputView {
         System.out.println(ERROR_PREFIX + message + ERROR_SUFFIX);
     }
 
-    public static void printRoundEndMessage(String message) {
+    public static void printMessage(String message) {
         System.out.println(message);
     }
 
@@ -129,11 +129,6 @@ public class OutputView {
         System.out.printf(PLAYER_CARD_LIST_FORMAT, playerDto.getStatus(), playerDto.getMyCards());
     }
 
-
-    public static void printDog() {
-        System.out.println(PRINT_DOG);
-    }
-
     public static void printTableCombination(RoundDto roundDto, PhaseDto phaseDto, List<String> cards) {
         System.out.println(PRINT_CURRENT_TABLE_CARD);
         if (roundDto.isCallActive()) {
@@ -178,8 +173,15 @@ public class OutputView {
         System.out.printf(PRINT_PLACE, place, playerDto.getStatus());
     }
 
+    public static void printRoundScore(Map<Team, Integer> currentRoundScore) {
+        System.out.println(PRINT_ROUND_SCORE);
+        System.out.println(PRINT_RED_TEAM + currentRoundScore.get(RED));
+        System.out.println(PRINT_BLUE_TEAM + currentRoundScore.get(BLUE));
+        System.out.println();
+    }
+
     public static void printTeamScore(Map<Team, Integer> currentTeamScore) {
-        System.out.println(PRINT_SCORE);
+        System.out.println(PRINT_GAME_SCORE);
         System.out.println(PRINT_RED_TEAM + currentTeamScore.get(RED));
         System.out.println(PRINT_BLUE_TEAM + currentTeamScore.get(BLUE));
         System.out.println();
