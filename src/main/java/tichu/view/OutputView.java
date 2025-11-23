@@ -39,7 +39,7 @@ public class OutputView {
     private static final String PLAYER_CARD_LIST_FORMAT = "%s: %s\n";
     private static final String LAST_COMBINATION_FORMAT = "%s: %s %s\n";
     private static final String CARD_COUNT_FORMAT = "%s: %d장\n";
-    private static final String PLAYER_TURN_FORMAT = "<%s> 차례\n";
+    private static final String PLAYER_TURN_FORMAT = "\n<%s> 차례\n";
 
     private OutputView() {
     }
@@ -116,7 +116,6 @@ public class OutputView {
         for (PlayerDto playerDto : playerDtos) {
             System.out.printf(CARD_COUNT_FORMAT, playerDto.getStatus(), playerDto.getCardCount());
         }
-        System.out.println();
     }
 
     public static void printPlayerCards(PlayerDto playerDto) {
