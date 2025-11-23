@@ -20,18 +20,18 @@ public enum Suit {
         this.priority = priority;
     }
 
+    public static Suit valueOfSuit(String suit) {
+        return Arrays.stream(values())
+                .filter(s -> s.getSuit().equals(suit))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(INVALID_SUIT));
+    }
+
     public String getSuit() {
         return suit;
     }
 
     public int getPriority() {
         return priority;
-    }
-
-    public static Suit valueOfSuit(String suit) {
-        return Arrays.stream(values())
-                .filter(s -> s.getSuit().equals(suit))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(INVALID_SUIT));
     }
 }

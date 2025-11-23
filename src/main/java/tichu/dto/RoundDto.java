@@ -4,8 +4,8 @@ import tichu.domain.Round;
 import tichu.enums.Rank;
 
 public class RoundDto {
-    private Rank calledRank = null;
-    private boolean isCallActive = false;
+    private final Rank calledRank;
+    private final boolean isCallActive;
 
     public RoundDto(Rank calledRank, boolean isCallActive) {
         this.calledRank = calledRank;

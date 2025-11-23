@@ -73,7 +73,6 @@ public class PlayerDto {
         return myCards;
     }
 
-
     public int getCardCount() {
         return myCards.size();
     }

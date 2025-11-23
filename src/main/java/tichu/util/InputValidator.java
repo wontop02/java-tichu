@@ -29,12 +29,26 @@ public class InputValidator {
         validateReservedWord(inputs);
     }
 
+    private static void validateEnglishAndKoreanOnly(String input) {
+        if (!input.matches(ENGLISH_AND_KOREAN_ONLY_REGEX)) {
+            throw new IllegalArgumentException(NOT_ENGLISH_AND_KOREAN_ONLY);
+        }
+    }
+
+    private static void validateReservedWord(List<String> inputs) {
+        for (String input : inputs) {
+            if (input.equals(PASS_RESERVED_WORD) || input.equals(CANCEL_RESERVED_WORD)) {
+                throw new IllegalArgumentException(RESERVED_WORD);
+            }
+        }
+    }
+
     public static void validateTichuCallerName(String input) {
         validateNotBlank(input);
         List<String> inputs = validateNotDuplicate(input);
         inputs.forEach(InputValidator::validateNotBlank);
     }
-
+    
     public static void validatePlayerName(String input) {
         validateNotBlank(input);
     }
@@ -43,6 +57,14 @@ public class InputValidator {
         validateNotBlank(input);
         List<String> inputs = validateNotDuplicate(input);
         inputs.forEach(InputValidator::validateCardFormat);
+    }
+
+    private static void validateCardFormat(String input) {
+        boolean isNormalCard = input.matches(NORMAL_CARD_FORMAT);
+        boolean isSpecialCard = input.matches(SPECIAL_CARD_FORMAT);
+        if (!isNormalCard && !isSpecialCard) {
+            throw new IllegalArgumentException(INVALID_CARD_FORMAT);
+        }
     }
 
     public static void validateCallRank(String input) {
@@ -64,27 +86,5 @@ public class InputValidator {
             throw new IllegalArgumentException(DUPLICATED);
         }
         return inputs;
-    }
-
-    private static void validateEnglishAndKoreanOnly(String input) {
-        if (!input.matches(ENGLISH_AND_KOREAN_ONLY_REGEX)) {
-            throw new IllegalArgumentException(NOT_ENGLISH_AND_KOREAN_ONLY);
-        }
-    }
-
-    private static void validateReservedWord(List<String> inputs) {
-        for (String input : inputs) {
-            if (input.equals(PASS_RESERVED_WORD) || input.equals(CANCEL_RESERVED_WORD)) {
-                throw new IllegalArgumentException(RESERVED_WORD);
-            }
-        }
-    }
-
-    private static void validateCardFormat(String input) {
-        boolean isNormalCard = input.matches(NORMAL_CARD_FORMAT);
-        boolean isSpecialCard = input.matches(SPECIAL_CARD_FORMAT);
-        if (!isNormalCard && !isSpecialCard) {
-            throw new IllegalArgumentException(INVALID_CARD_FORMAT);
-        }
     }
 }

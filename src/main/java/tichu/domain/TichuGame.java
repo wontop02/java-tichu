@@ -27,12 +27,6 @@ public class TichuGame {
         teamScore.put(BLUE, 0);
     }
 
-    public Round startRound() {
-        roundNumber++;
-
-        return new Round(playersWithDirection);
-    }
-
     private void validate(List<String> names) {
         validatePlayerCount(names);
         validatePlayerName(names);
@@ -67,6 +61,11 @@ public class TichuGame {
         return players;
     }
 
+    public Round startRound() {
+        roundNumber++;
+        return new Round(playersWithDirection);
+    }
+
     public Map<Team, Integer> addTeamScore(Map<Team, Integer> roundScore) {
         teamScore.put(RED, teamScore.get(RED) + roundScore.get(RED));
         teamScore.put(BLUE, teamScore.get(BLUE) + roundScore.get(BLUE));
@@ -74,18 +73,7 @@ public class TichuGame {
     }
 
     public boolean isEndTichuGame() {
-        if (teamScore.get(RED) >= GOAL_SCORE || teamScore.get(BLUE) >= GOAL_SCORE) {
-            return true;
-        }
-        return false;
-    }
-
-    public int getRoundNumber() {
-        return roundNumber;
-    }
-
-    public List<Player> getPlayersWithDirection() {
-        return List.copyOf(playersWithDirection);
+        return teamScore.get(RED) >= GOAL_SCORE || teamScore.get(BLUE) >= GOAL_SCORE;
     }
 
     public Team tichuGameWinner() {
@@ -107,5 +95,13 @@ public class TichuGame {
         }
         // 무승부
         return null;
+    }
+
+    public int getRoundNumber() {
+        return roundNumber;
+    }
+
+    public List<Player> getPlayersWithDirection() {
+        return List.copyOf(playersWithDirection);
     }
 }

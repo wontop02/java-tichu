@@ -18,18 +18,18 @@ public enum Special {
         this.priority = priority;
     }
 
+    public static Special valueOfSpecial(String special) {
+        return Arrays.stream(values())
+                .filter(s -> s.getSpecial().equals(special))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(INVALID_SPECIAL));
+    }
+
     public String getSpecial() {
         return special;
     }
 
     public int getPriority() {
         return priority;
-    }
-
-    public static Special valueOfSpecial(String special) {
-        return Arrays.stream(values())
-                .filter(s -> s.getSpecial().equals(special))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(INVALID_SPECIAL));
     }
 }

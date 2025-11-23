@@ -33,6 +33,13 @@ public class Card implements Comparable<Card> {
         return 0;
     }
 
+    private int priority() {
+        if (this.special != null) {
+            return this.special.getPriority();
+        }
+        return this.rank.getPriority();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -50,13 +57,6 @@ public class Card implements Comparable<Card> {
     @Override
     public int hashCode() {
         return Objects.hash(rank, suit, special);
-    }
-
-    private int priority() {
-        if (this.special != null) {
-            return this.special.getPriority();
-        }
-        return this.rank.getPriority();
     }
 
     public Rank getRank() {

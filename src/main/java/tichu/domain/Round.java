@@ -40,15 +40,21 @@ public class Round {
         dealCards(8);
     }
 
+    public void dealCards6() {
+        dealCards(6);
+    }
+
+    private void dealCards(int count) {
+        for (Player player : players) {
+            player.addMyCards(deck.deal(count));
+        }
+    }
+
     public void addLargeTichu(List<String> names) {
         for (String name : names) {
             Player player = findPlayerByName(name);
             player.callLargeTichu();
         }
-    }
-
-    public void dealCards6() {
-        dealCards(6);
     }
 
     public void addSmallTichu(List<String> names) {
@@ -59,18 +65,10 @@ public class Round {
         }
     }
 
-    public void dealCards(int count) {
-        for (Player player : players) {
-            player.addMyCards(deck.deal(count));
+    private void validateNotAlreadyCalledTichu(Player player) {
+        if (player.getLargeTichuStatus() || player.getSmallTichuStatus()) {
+            throw new IllegalArgumentException(ALREADY_CALLED_TICHU);
         }
-    }
-
-    public List<Player> getPlayers() {
-        return List.copyOf(players);
-    }
-
-    public Map<Place, Player> getPlayerPlace() {
-        return Map.copyOf(playerPlace);
     }
 
     public void tradeCards(List<List<Card>> received) {
@@ -93,16 +91,6 @@ public class Round {
         return new Phase(startPlayer, players);
     }
 
-    public void callRank(Rank rank) {
-        this.calledRank = rank;
-        this.isCallActive = true;
-    }
-
-    public void callEnd() {
-        this.calledRank = null;
-        this.isCallActive = false;
-    }
-
     private Player findNextNotEndPlayer(Player startPlayer) {
         int index = players.indexOf(startPlayer);
 
@@ -117,12 +105,21 @@ public class Round {
         throw new IllegalStateException(NOT_FOUND_NEXT_PLAYER);
     }
 
-    public Rank getCalledRank() {
-        return calledRank;
+    private Player decideStartPlayer() {
+        return players.stream()
+                .filter(Player::hasMahjong)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(NOT_FOUND_HAS_MAJHONG));
     }
 
-    public boolean isCallActive() {
-        return isCallActive;
+    public void callRank(Rank rank) {
+        this.calledRank = rank;
+        this.isCallActive = true;
+    }
+
+    public void callEnd() {
+        this.calledRank = null;
+        this.isCallActive = false;
     }
 
     public void endPhase(Phase phase) {
@@ -139,32 +136,8 @@ public class Round {
         lastPhaseWinner = phase.giveCardsUseDogPlayer();
     }
 
-    public int getPhaseNumber() {
-        return phaseNumber;
-    }
-
     public void validatePlayerNames(List<String> names) {
         names.forEach(this::findPlayerByName);
-    }
-
-    private Player findPlayerByName(String name) {
-        return players.stream()
-                .filter(p -> p.getName().equals(name))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(PLAYER_NOT_FOUND));
-    }
-
-    private void validateNotAlreadyCalledTichu(Player player) {
-        if (player.getLargeTichuStatus() || player.getSmallTichuStatus()) {
-            throw new IllegalArgumentException(ALREADY_CALLED_TICHU);
-        }
-    }
-
-    private Player decideStartPlayer() {
-        return players.stream()
-                .filter(Player::hasMahjong)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(NOT_FOUND_HAS_MAJHONG));
     }
 
     public boolean checkRoundPlace(Player player) {
@@ -198,10 +171,6 @@ public class Round {
                 .map(entry -> entry.getKey().getPlace())
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(NOT_FOUND_PLACE));
-    }
-
-    public boolean isEndPlayer(Player player) {
-        return playerPlace.containsValue(player);
     }
 
     public boolean isRoundEnd() {
@@ -243,15 +212,6 @@ public class Round {
         return Map.copyOf(teamScore);
     }
 
-    private void applyTichuScore(Map<Team, Integer> teamScore, Player player, Player first, int point) {
-        Team team = player.getTeam();
-        if (player == first) {
-            teamScore.put(team, teamScore.get(team) + point);
-            return;
-        }
-        teamScore.put(team, teamScore.get(team) - point);
-    }
-
     private Map<Team, Integer> calculateCardScore() {
         Map<Team, Integer> cardScore = new HashMap<>();
         cardScore.put(RED, 0);
@@ -290,5 +250,45 @@ public class Round {
                     cardScore.get(player.getTeam()) + score);
         }
         return cardScore;
+    }
+
+    private void applyTichuScore(Map<Team, Integer> teamScore, Player player, Player first, int point) {
+        Team team = player.getTeam();
+        if (player == first) {
+            teamScore.put(team, teamScore.get(team) + point);
+            return;
+        }
+        teamScore.put(team, teamScore.get(team) - point);
+    }
+
+    private boolean isEndPlayer(Player player) {
+        return playerPlace.containsValue(player);
+    }
+    
+    private Player findPlayerByName(String name) {
+        return players.stream()
+                .filter(p -> p.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(PLAYER_NOT_FOUND));
+    }
+
+    public List<Player> getPlayers() {
+        return List.copyOf(players);
+    }
+
+    public Rank getCalledRank() {
+        return calledRank;
+    }
+
+    public boolean isCallActive() {
+        return isCallActive;
+    }
+
+    public int getPhaseNumber() {
+        return phaseNumber;
+    }
+
+    public Map<Place, Player> getPlayerPlace() {
+        return Map.copyOf(playerPlace);
     }
 }

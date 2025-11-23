@@ -34,6 +34,11 @@ public class CombinationFinder {
         return hasStrongNormalCombination(cards, calledRank, combination);
     }
 
+    private static boolean hasStrongBomb(List<Card> cards, Rank calledRank, Combination combination) {
+        return hasStrongBombFourCard(cards, calledRank, combination)
+                || hasStrongBombStraightFlush(cards, calledRank, combination);
+    }
+
     private static boolean hasStrongNormalCombination(List<Card> cards, Rank calledRank, Combination combination) {
         CombinationType type = combination.getCombinationType();
         if (type == SINGLE) {
@@ -55,11 +60,6 @@ public class CombinationFinder {
             return hasStrongPairSequence(cards, calledRank, combination);
         }
         return false;
-    }
-
-    private static boolean hasStrongBomb(List<Card> cards, Rank calledRank, Combination combination) {
-        return hasStrongBombFourCard(cards, calledRank, combination)
-                || hasStrongBombStraightFlush(cards, calledRank, combination);
     }
 
     private static boolean hasStrongSingle(List<Card> cards, Rank calledRank, Combination combination) {

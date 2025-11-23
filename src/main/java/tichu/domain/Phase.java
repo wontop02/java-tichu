@@ -38,124 +38,6 @@ public class Phase {
         this.passed = new boolean[4];
     }
 
-    public Rank getTopRank() {
-        if (this.lastCombination == null) {
-            return null;
-        }
-        int phoenixIndex = phaseCards.size() - 1;
-        boolean hasBeforeCard = phoenixIndex > 0;
-        if (lastCombination.isSinglePhoenix()) {
-            if (!hasBeforeCard) {
-                return Rank.ONE;
-            }
-            if (phaseCards.get(phoenixIndex - 1).isMahjong()) {
-                return Rank.ONE;
-            }
-            return phaseCards.get(phoenixIndex - 1).getRank();
-        }
-        if (lastCombination.isMahjong()) {
-            return Rank.ONE;
-        }
-        if (lastCombination.isDragon()) {
-            return Rank.DRAGON;
-        }
-        return lastCombination.getTopRank();
-    }
-
-    public void pass(Player player) {
-        passed[players.indexOf(player)] = true;
-        nextTurn();
-    }
-
-    public void useBomb(String name, List<Card> cards, Round round) {
-        Player player = findPlayer(name);
-        Combination bombCombination = new Combination(cards);
-        Rank calledRank = round.getCalledRank();
-        if (lastCombination == null) {
-            throw new IllegalArgumentException(CANNOT_USE_BOMB);
-        }
-        if (!bombCombination.isBomb()) {
-            throw new IllegalArgumentException(NOT_BOMB);
-        }
-        if (bombCombination.compareTo(lastCombination) != 1) {
-            throw new IllegalArgumentException(MUST_STRONG_BOMB);
-        }
-        lastCombination = bombCombination;
-        if (bombCombination.hasCallRank(calledRank)) {
-            round.callEnd();
-        }
-        turnIndex = players.indexOf(player);
-        phaseWinner = player;
-        passed = new boolean[4];
-
-        player.removeMyCards(bombCombination.getCards());
-        phaseCards.addAll(bombCombination.getCards());
-
-        nextTurn();
-    }
-
-    public void useDog(Player player, Combination combination) {
-        player.removeMyCards(combination.getCards());
-        phaseCards.addAll(combination.getCards());
-        phaseWinner = player;
-        throw new PhaseEndSignal(USE_DOG);
-    }
-
-    private Player findOtherTeamMember(Player player) {
-        Team team = player.getTeam();
-        return players.stream()
-                .filter(p -> p.getTeam() == team)
-                .filter(p -> p != player)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(TEAM_MEMBER_NOT_FOUND));
-    }
-
-    public boolean isPhaseEnd() {
-        int passCount = 0;
-        for (int i = 0; i < passed.length; i++) {
-            if (passed[i] && players.get(i) != phaseWinner) {
-                passCount++;
-            }
-        }
-        return passCount == 3;
-    }
-
-    public Player getCurrentPlayer() {
-        return players.get(turnIndex);
-    }
-
-    public Player getPhaseWinner() {
-        return phaseWinner;
-    }
-
-    public boolean winWithDragon() {
-        return phaseCards.getLast().isDragon();
-    }
-
-    public Combination getLastCombination() {
-        return lastCombination;
-    }
-
-    public void giveCardsToWinner() {
-        phaseWinner.addAcquireCards(phaseCards);
-    }
-
-    public Player giveCardsUseDogPlayer() {
-        phaseWinner.addAcquireCards(phaseCards);
-        return findOtherTeamMember(phaseWinner);
-    }
-
-    public void giveCardsToPlayerWithDragon(String name) {
-        Player player = findPlayer(name);
-        if (player.getTeam() == phaseWinner.getTeam()) {
-            throw new IllegalArgumentException(CANNOT_SELECT_SAME_TEAM);
-        }
-        if (player.getCardCount() == 0) {
-            throw new IllegalArgumentException(CANNOT_SELECT_END_PLAYER);
-        }
-        player.addAcquireCards(phaseCards);
-    }
-
     public void evaluateCombination(Player player, Combination combination, Round round) {
         if (round.isCallActive()) {
             includeCallRank(player, combination, round);
@@ -206,58 +88,15 @@ public class Phase {
         registerCombination(player, combination);
     }
 
-    private void registerCombination(Player player, Combination combination) {
-        lastCombination = combination;
-        phaseWinner = player;
-        passed = new boolean[4];
-
-        player.removeMyCards(combination.getCards());
-        phaseCards.addAll(combination.getCards());
-
-        nextTurn();
-    }
-
-
-    public void validatePass(Player player, Round round) {
-        validateStartPlayerPass();
-        validateHasCallCardPass(player, round);
-    }
-
-    private void validateStartPlayerPass() {
-        if (lastCombination == null) {
-            throw new IllegalArgumentException(START_PLAYER_CANNOT_PASS);
-        }
-    }
-
-    private void validateHasCallCardPass(Player player, Round round) {
-        if (!round.isCallActive()) {
-            return;
-        }
-        if (player.hasStrongThanCombinationWithCall(lastCombination, round.getCalledRank())) {
+    private void includeCallRank(Player player, Combination combination, Round round) {
+        Rank calledRank = round.getCalledRank();
+        if (!combination.hasCallRank(calledRank)
+                && player.hasStrongThanCombinationWithCall(lastCombination, calledRank)) {
             throw new IllegalArgumentException(MUST_COMBINATION_INCLUDE_CALL);
         }
-    }
-
-    private void nextTurn() {
-        for (int i = 0; i < 4; i++) {
-            turnIndex = (turnIndex + 1) % 4;
-            Player nextPlayer = players.get(turnIndex);
-            // 카드 없으면 자동 패스 처리
-            if (nextPlayer.getCardCount() == 0) {
-                passed[turnIndex] = true;
-                continue;
-            }
-            if (!passed[turnIndex]) {
-                return;
-            }
+        if (combination.hasCallRank(calledRank)) {
+            round.callEnd();
         }
-    }
-
-    public Player findPlayer(String name) {
-        return players.stream()
-                .filter(p -> p.getName().equals(name))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(PLAYER_NOT_FOUND));
     }
 
     private int evaluateSingleCombination(Combination combination) {
@@ -302,14 +141,175 @@ public class Phase {
         return 0;
     }
 
-    private void includeCallRank(Player player, Combination combination, Round round) {
-        Rank calledRank = round.getCalledRank();
-        if (!combination.hasCallRank(calledRank)
-                && player.hasStrongThanCombinationWithCall(lastCombination, calledRank)) {
+    private void registerCombination(Player player, Combination combination) {
+        lastCombination = combination;
+        phaseWinner = player;
+        passed = new boolean[4];
+
+        player.removeMyCards(combination.getCards());
+        phaseCards.addAll(combination.getCards());
+
+        nextTurn();
+    }
+
+    public Rank getTopRank() {
+        if (this.lastCombination == null) {
+            return null;
+        }
+        int phoenixIndex = phaseCards.size() - 1;
+        boolean hasBeforeCard = phoenixIndex > 0;
+        if (lastCombination.isSinglePhoenix()) {
+            if (!hasBeforeCard) {
+                return Rank.ONE;
+            }
+            if (phaseCards.get(phoenixIndex - 1).isMahjong()) {
+                return Rank.ONE;
+            }
+            return phaseCards.get(phoenixIndex - 1).getRank();
+        }
+        if (lastCombination.isMahjong()) {
+            return Rank.ONE;
+        }
+        if (lastCombination.isDragon()) {
+            return Rank.DRAGON;
+        }
+        return lastCombination.getTopRank();
+    }
+
+    public void pass(Player player, Round round) {
+        validatePass(player, round);
+        passed[players.indexOf(player)] = true;
+        nextTurn();
+    }
+
+    private void validatePass(Player player, Round round) {
+        validateStartPlayerPass();
+        validateHasCallCardPass(player, round);
+    }
+
+    private void validateStartPlayerPass() {
+        if (lastCombination == null) {
+            throw new IllegalArgumentException(START_PLAYER_CANNOT_PASS);
+        }
+    }
+
+    private void validateHasCallCardPass(Player player, Round round) {
+        if (!round.isCallActive()) {
+            return;
+        }
+        if (player.hasStrongThanCombinationWithCall(lastCombination, round.getCalledRank())) {
             throw new IllegalArgumentException(MUST_COMBINATION_INCLUDE_CALL);
         }
-        if (combination.hasCallRank(calledRank)) {
+    }
+
+    public void useBomb(String name, List<Card> cards, Round round) {
+        Player player = findPlayer(name);
+        Combination bombCombination = new Combination(cards);
+        Rank calledRank = round.getCalledRank();
+        if (lastCombination == null) {
+            throw new IllegalArgumentException(CANNOT_USE_BOMB);
+        }
+        if (!bombCombination.isBomb()) {
+            throw new IllegalArgumentException(NOT_BOMB);
+        }
+        if (bombCombination.compareTo(lastCombination) != 1) {
+            throw new IllegalArgumentException(MUST_STRONG_BOMB);
+        }
+        lastCombination = bombCombination;
+        if (bombCombination.hasCallRank(calledRank)) {
             round.callEnd();
         }
+        turnIndex = players.indexOf(player);
+        phaseWinner = player;
+        passed = new boolean[4];
+
+        player.removeMyCards(bombCombination.getCards());
+        phaseCards.addAll(bombCombination.getCards());
+
+        nextTurn();
+    }
+
+    public Player findPlayer(String name) {
+        return players.stream()
+                .filter(p -> p.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(PLAYER_NOT_FOUND));
+    }
+
+    public void useDog(Player player, Combination combination) {
+        player.removeMyCards(combination.getCards());
+        phaseCards.addAll(combination.getCards());
+        phaseWinner = player;
+        throw new PhaseEndSignal(USE_DOG);
+    }
+
+    public boolean isPhaseEnd() {
+        int passCount = 0;
+        for (int i = 0; i < passed.length; i++) {
+            if (passed[i] && players.get(i) != phaseWinner) {
+                passCount++;
+            }
+        }
+        return passCount == 3;
+    }
+
+    public void giveCardsToWinner() {
+        phaseWinner.addAcquireCards(phaseCards);
+    }
+
+    public Player giveCardsUseDogPlayer() {
+        phaseWinner.addAcquireCards(phaseCards);
+        return findOtherTeamMember(phaseWinner);
+    }
+
+    private Player findOtherTeamMember(Player player) {
+        Team team = player.getTeam();
+        return players.stream()
+                .filter(p -> p.getTeam() == team)
+                .filter(p -> p != player)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(TEAM_MEMBER_NOT_FOUND));
+    }
+
+    public void giveCardsToPlayerWithDragon(String name) {
+        Player player = findPlayer(name);
+        if (player.getTeam() == phaseWinner.getTeam()) {
+            throw new IllegalArgumentException(CANNOT_SELECT_SAME_TEAM);
+        }
+        if (player.getCardCount() == 0) {
+            throw new IllegalArgumentException(CANNOT_SELECT_END_PLAYER);
+        }
+        player.addAcquireCards(phaseCards);
+    }
+
+    private void nextTurn() {
+        for (int i = 0; i < 4; i++) {
+            turnIndex = (turnIndex + 1) % 4;
+            Player nextPlayer = players.get(turnIndex);
+            // 카드 없으면 자동 패스 처리
+            if (nextPlayer.getCardCount() == 0) {
+                passed[turnIndex] = true;
+                continue;
+            }
+            if (!passed[turnIndex]) {
+                return;
+            }
+        }
+    }
+
+    public Player getCurrentPlayer() {
+        return players.get(turnIndex);
+    }
+
+    public Player getPhaseWinner() {
+        return phaseWinner;
+    }
+
+    public boolean winWithDragon() {
+        return phaseCards.getLast().isDragon();
+    }
+
+    public Combination getLastCombination() {
+        return lastCombination;
     }
 }

@@ -41,7 +41,6 @@ class PlayerTest {
         Collections.shuffle(shuffledCards);
 
         player.addMyCards(shuffledCards);
-        player.sortMyCards();
 
         assertEquals(sortedCards, player.getMyCards());
     }

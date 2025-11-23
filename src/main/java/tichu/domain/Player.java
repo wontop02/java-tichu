@@ -29,23 +29,11 @@ public class Player {
         isLargeTichu = true;
     }
 
-    public boolean getLargeTichuStatus() {
-        return isLargeTichu;
-    }
-
     public void callSmallTichu() {
         if (getCardCount() < 14) {
             throw new IllegalArgumentException(CANNOT_CALLED_SMALL_TICHU);
         }
         isSmallTichu = true;
-    }
-
-    public boolean getSmallTichuStatus() {
-        return isSmallTichu;
-    }
-
-    public boolean isCalledTichu() {
-        return isLargeTichu || isSmallTichu;
     }
 
     public void resetTichuStatus() {
@@ -62,12 +50,6 @@ public class Player {
         acquiredCards.addAll(card);
     }
 
-    public void validateContainMyCard(Card card) {
-        if (!myCards.contains(card)) {
-            throw new IllegalArgumentException(NOT_IN_MY_CARDS);
-        }
-    }
-
     public void removeMyCards(List<Card> cards) {
         myCards.removeAll(cards);
     }
@@ -80,32 +62,10 @@ public class Player {
         acquiredCards.clear();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public int getCardCount() {
-        return myCards.size();
-    }
-
-    public void sortMyCards() {
-        Collections.sort(myCards);
-    }
-
-    public List<Card> getMyCards() {
-        return List.copyOf(myCards);
-    }
-
-    public List<Card> getAcquiredCards() {
-        return List.copyOf(acquiredCards);
-    }
-
-    public boolean hasMahjong() {
-        return myCards.stream().anyMatch(Card::isMahjong);
+    public void validateContainMyCard(Card card) {
+        if (!myCards.contains(card)) {
+            throw new IllegalArgumentException(NOT_IN_MY_CARDS);
+        }
     }
 
     public boolean hasStrongThanCombinationWithCall(Combination combination, Rank calledRank) {
@@ -137,5 +97,41 @@ public class Player {
             }
         }
         return score;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public int getCardCount() {
+        return myCards.size();
+    }
+
+    public List<Card> getMyCards() {
+        return List.copyOf(myCards);
+    }
+
+    public List<Card> getAcquiredCards() {
+        return List.copyOf(acquiredCards);
+    }
+
+    public boolean hasMahjong() {
+        return myCards.stream().anyMatch(Card::isMahjong);
+    }
+
+    public boolean getLargeTichuStatus() {
+        return isLargeTichu;
+    }
+
+    public boolean getSmallTichuStatus() {
+        return isSmallTichu;
+    }
+
+    public boolean isCalledTichu() {
+        return isLargeTichu || isSmallTichu;
     }
 }

@@ -44,8 +44,12 @@ public class CombinationEvaluator {
         return result;
     }
 
+    private static boolean containsPhoenix(List<Card> cards) {
+        return cards.stream().anyMatch(Card::isPhoenix);
+    }
+
     // 봉이 포함되어 있을 경우 조합 판단
-    public static CombinationResult evaluateWithPhoenix(List<Card> cards) {
+    private static CombinationResult evaluateWithPhoenix(List<Card> cards) {
         List<Rank> ranks = new ArrayList<>(List.of(Rank.values()));
         Collections.reverse(ranks);
         for (Rank substituteRank : ranks) {
@@ -62,11 +66,7 @@ public class CombinationEvaluator {
         return null;
     }
 
-    public static boolean containsPhoenix(List<Card> cards) {
-        return cards.stream().anyMatch(Card::isPhoenix);
-    }
-
-    public static List<Card> substitutePhoenix(List<Card> cards, Rank substituteRank) {
+    private static List<Card> substitutePhoenix(List<Card> cards, Rank substituteRank) {
         List<Card> substituteCards = new ArrayList<>();
         for (Card card : cards) {
             if (card.isPhoenix()) {
@@ -88,11 +88,11 @@ public class CombinationEvaluator {
         if (isTriple(cards)) {
             return new CombinationResult(TRIPLE, cards.getLast(), cards.getLast().getRank());
         }
-        if (isStraight(cards)) {
-            return new CombinationResult(STRAIGHT, cards.getLast(), cards.getLast().getRank());
-        }
         if (isFullHouse(cards)) {
             return new CombinationResult(FULL_HOUSE, findTripleTopCard(cards), findTripleTopCard(cards).getRank());
+        }
+        if (isStraight(cards)) {
+            return new CombinationResult(STRAIGHT, cards.getLast(), cards.getLast().getRank());
         }
         if (isPairSequence(cards)) {
             return new CombinationResult(PAIR_SEQUENCE, cards.getLast(), cards.getLast().getRank());
@@ -134,20 +134,6 @@ public class CombinationEvaluator {
         return cards.get(0).getRank() == cards.get(2).getRank();
     }
 
-    private static boolean isStraight(List<Card> cards) {
-        if (cards.size() < 5) {
-            return false;
-        }
-        for (Card card : cards) {
-            if (card.isDog() || card.isDragon()) {
-                return false;
-            }
-        }
-        return IntStream.range(0, cards.size() - 1)
-                .allMatch(i ->
-                        cards.get(i + 1).getRankPriority() - cards.get(i).getRankPriority() == 1);
-    }
-
     private static boolean isFullHouse(List<Card> cards) {
         if (cards.size() != 5) {
             return false;
@@ -166,12 +152,25 @@ public class CombinationEvaluator {
         return threeFirst || threeLast;
     }
 
-
     private static Card findTripleTopCard(List<Card> cards) {
         if (cards.get(0).getRank() == cards.get(2).getRank()) {
             return cards.getFirst();
         }
         return cards.getLast();
+    }
+
+    private static boolean isStraight(List<Card> cards) {
+        if (cards.size() < 5) {
+            return false;
+        }
+        for (Card card : cards) {
+            if (card.isDog() || card.isDragon()) {
+                return false;
+            }
+        }
+        return IntStream.range(0, cards.size() - 1)
+                .allMatch(i ->
+                        cards.get(i + 1).getRankPriority() - cards.get(i).getRankPriority() == 1);
     }
 
     private static boolean isPairSequence(List<Card> cards) {

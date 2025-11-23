@@ -33,18 +33,18 @@ public enum Rank {
         this.priority = priority;
     }
 
+    public static Rank valueOfRank(String rank) {
+        return Arrays.stream(values())
+                .filter(s -> s.getRank().equals(rank))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(INVALID_RANK));
+    }
+
     public String getRank() {
         return rank;
     }
 
     public int getPriority() {
         return priority;
-    }
-
-    public static Rank valueOfRank(String rank) {
-        return Arrays.stream(values())
-                .filter(s -> s.getRank().equals(rank))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(INVALID_RANK));
     }
 }

@@ -304,8 +304,7 @@ public class TichuGameController {
     }
 
     private void inputPassPlayer(Phase phase, Player player, Round round) {
-        phase.validatePass(player, round);
-        phase.pass(player);
+        phase.pass(player, round);
     }
 
     private void handleTurnInput(Round round, Phase phase, Player player) {

@@ -50,6 +50,37 @@ public class Combination {
         return Integer.compare(myRank.getPriority(), otherRank.getPriority());
     }
 
+    private int compareBomb(Combination other) {
+        CombinationType myType = this.combinationResult.getType();
+        CombinationType otherType = other.combinationResult.getType();
+        // 폭탄 종류 비교
+        if (myType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_FOUR_CARD) {
+            return 1;
+        }
+        if (myType == BOMB_FOUR_CARD && otherType == BOMB_STRAIGHT_FLUSH) {
+            return -1;
+        }
+        // 길이 비교
+        if (myType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_STRAIGHT_FLUSH) {
+            if (this.cards.size() > other.cards.size()) {
+                return 1;
+            }
+            if (this.cards.size() < other.cards.size()) {
+                return -1;
+            }
+
+            // 길이 같으면 topRank 비교
+            return Integer.compare(
+                    this.getTopRank().getPriority(),
+                    other.getTopRank().getPriority()
+            );
+        }
+        return Integer.compare(
+                this.getTopRank().getPriority(),
+                other.getTopRank().getPriority()
+        );
+    }
+
     public CombinationType getCombinationType() {
         return combinationResult.getType();
     }
@@ -96,36 +127,5 @@ public class Combination {
 
     public boolean hasCallRank(Rank rank) {
         return cards.stream().anyMatch(card -> card.getRank() == rank);
-    }
-
-    private int compareBomb(Combination other) {
-        CombinationType myType = this.combinationResult.getType();
-        CombinationType otherType = other.combinationResult.getType();
-        // 폭탄 종류 비교
-        if (myType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_FOUR_CARD) {
-            return 1;
-        }
-        if (myType == BOMB_FOUR_CARD && otherType == BOMB_STRAIGHT_FLUSH) {
-            return -1;
-        }
-        // 길이 비교
-        if (myType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_STRAIGHT_FLUSH) {
-            if (this.cards.size() > other.cards.size()) {
-                return 1;
-            }
-            if (this.cards.size() < other.cards.size()) {
-                return -1;
-            }
-
-            // 길이 같으면 topRank 비교
-            return Integer.compare(
-                    this.getTopRank().getPriority(),
-                    other.getTopRank().getPriority()
-            );
-        }
-        return Integer.compare(
-                this.getTopRank().getPriority(),
-                other.getTopRank().getPriority()
-        );
     }
 }
