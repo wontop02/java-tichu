@@ -63,7 +63,10 @@ public class CombinationFinder {
     }
 
     private static boolean hasStrongSingle(List<Card> cards, Rank calledRank, Combination combination) {
-        Rank topRank = combination.getTopRank();
+        Rank topRank = Rank.ONE;
+        if (!combination.isMahjong()) {
+            topRank = combination.getTopRank();
+        }
         if (topRank.getPriority() >= calledRank.getPriority()) {
             return false;
         }
