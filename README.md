@@ -83,6 +83,8 @@
 
 ### 참가자 모집
 
+<img width="664" height="309" alt="image" src="https://github.com/user-attachments/assets/29972e06-dc89-492b-99fe-4160d169b88e" />
+
 - [x] 참가자 4명의 이름 입력 요청
     - 이름은 쉼표(,)로 구분
 - [x] 입력값 검증: 잘못된 값일 경우 `IllegalArgumentException` 발생 및 재입력 요청
@@ -94,28 +96,41 @@
 
 ### 팀 선정 & 진행 방향 선정
 
+<img width="558" height="117" alt="image" src="https://github.com/user-attachments/assets/1b9cb8e6-e19d-4a01-8b3e-05c53debf13e" />
+
 - [x] 랜덤으로 팀 선정
 - [x] 게임 진행 방향 선정
 
 ### 카드 배분
 
+<img width="541" height="144" alt="image" src="https://github.com/user-attachments/assets/41740813-0b2e-40a4-8d6b-ad8e9496f053" />
+<img width="693" height="146" alt="image" src="https://github.com/user-attachments/assets/c7f50308-15c9-4819-898c-bae2219197ba" />
+
 - [x] 카드를 중복없이 참가자 4명에게 배부
 
 ### 카드 정렬
+
+<img width="595" height="112" alt="image" src="https://github.com/user-attachments/assets/87a2cd16-e289-4ce9-aeea-b957e725f315" />
 
 - [x] 카드를 낮은 숫자 -> 높은 숫자, 낮은 알파벳 -> 높은 알파벳 순으로 정렬
 - [x] 개와 1은 숫자 앞에, 봉과 용은 알파벳 뒤에 순서대로 정렬
 
 ### 보유한 카드 출력
 
+<img width="576" height="60" alt="image" src="https://github.com/user-attachments/assets/2185b145-6b27-4ee4-9ece-bf54af8196d0" />
+
 - [x] 참가자가 보유한 카드를 출력
 
 ### 참가자 이름 출력
+
+<img width="180" height="139" alt="image" src="https://github.com/user-attachments/assets/6c751f25-0558-4be1-8020-8848d779b9c1" />
 
 - [x] 참가자 이름을 "이름(팀)" 형식으로 출력
     - [x] 티츄를 부른 참가자는 팀 뒤에 -L 또는 -S 추가해 출력
 
 ### 티츄 입력
+
+<img width="670" height="308" alt="image" src="https://github.com/user-attachments/assets/aa7c5326-7bd6-4d17-8c3f-d334afd52ee6" />
 
 - [x] 티츄를 부를 참가자의 이름 요청
     - 이름은 쉼표(,)로 구분
@@ -124,8 +139,11 @@
     - [x] 입력값이 비어 있을 경우
     - [x] 입력된 이름과 동일한 이름의 참가자가 없을 경우
     - [x] 중복된 이름이 입력된 경우
+    - [x] 입력된 이름의 플레이어가 이미 티츄를 부른 경우 
 
 ### 카드 교환
+
+<img width="794" height="307" alt="image" src="https://github.com/user-attachments/assets/5444f189-76d5-4dea-b277-273e40871740" />
 
 - [x] 다른 참가자에게 줄 카드 요청
 - [x] 입력값 검증: 잘못된 값일 경우 `IllegalArgumentException` 발생 및 재입력 요청
@@ -137,11 +155,25 @@
 
 ### 라운드 시작
 
+<img width="207" height="28" alt="image" src="https://github.com/user-attachments/assets/d8c47327-956e-4dd3-a031-a8f33fe4448d" />
+<img width="701" height="199" alt="image" src="https://github.com/user-attachments/assets/fce1b70a-dfaf-4749-a472-dda4735ddbe8" />
+
 - [x] 현재 라운드 계산
-- [x] 1을 가진 사람을 선으로 시작
+- [x] 카드 교환이 끝난 후 1을 가진 사람을 선으로 시작
 - [x] 라운드 시작 문구 출력
 
+### 페이즈 시작
+
+<img width="373" height="70" alt="image" src="https://github.com/user-attachments/assets/51169f23-675f-4880-a7b5-5d76d2a82f18" />
+
+- [x] 현재 페이즈 계산
+- [x] 이전 페이즈 우승자가 선으로 시작
+- [x] 페이즈 시작 문구 출력  
+
 ### 턴 수행
+
+<img width="795" height="328" alt="image" src="https://github.com/user-attachments/assets/c3beda72-5de2-45c2-a96d-5e52f65c1ee0" />
+<img width="571" height="143" alt="image" src="https://github.com/user-attachments/assets/4c0adbcf-e510-4c85-9407-5d125dc6e15e" />
 
 - [x] 이번 턴에 낼 카드 또는 패스 요청
     - 카드는 쉼표(,)로 구분
@@ -157,11 +189,15 @@
 
 ### 조합 판단
 
+<img width="501" height="60" alt="image" src="https://github.com/user-attachments/assets/eb183541-2e2f-4bc6-85ff-a3ce8e24b11f" />
+
 - [x] 플레이어가 낸 조합이 무엇인지 판단
 - [x] 조합 검증: 잘못된 값일 경우 `IllegalArgumentException` 발생 및 재입력 요청
     - [x] 유효하지 않은 조합인 경우
 
 ### 콜 부르기
+
+<img width="742" height="227" alt="image" src="https://github.com/user-attachments/assets/dd71903e-e19c-4c84-9f55-65518be06941" />
 
 - [x] 1을 포함한 조합을 낼 경우 콜 선택 요청
 - [x] 입력값 검증: 잘못된 값일 경우 `IllegalArgumentException` 발생 및 재입력 요청
@@ -173,10 +209,15 @@
 
 ### 테이블 카드 출력
 
+<img width="175" height="68" alt="image" src="https://github.com/user-attachments/assets/a77b1373-7ce8-4e4d-b3e8-6bbd5fb142a4" />
+<img width="233" height="111" alt="image" src="https://github.com/user-attachments/assets/ffe019ac-8f4a-4960-9991-38ddbf8915f5" />
+
 - [x] 현재 테이블 최상단에 있는 카드 출력
 - [x] 콜이 존재할 경우 콜도 같이 출력
 
 ### 폭탄을 낼 참가자 입력
+
+<img width="603" height="114" alt="image" src="https://github.com/user-attachments/assets/836e7f33-ebdc-41fd-bf2b-8e7e77bd56b0" />
 
 - [x] 폭탄을 낼 참가자 입력 요청
     - [x] 모든 플레이어의 카드 장수가 4장 미만이 될 때까지 출력
@@ -186,9 +227,12 @@
 
 ### 폭탄 사용
 
+<img width="788" height="362" alt="image" src="https://github.com/user-attachments/assets/3acf0150-08ae-4675-a07f-ecead7d0de08" />
+
 - [x] 폭탄을 낼 참가자의 카드 출력
     - 카드는 쉼표(,)로 구분
 - [x] 입력값 검증: 잘못된 값일 경우 `IllegalArgumentException` 발생 및 재입력 요청
+    - [x] 입력값이 비어 있을 경우
     - [x] 입력 형식이 잘못되었을 경우
         - 입력 형식: 숫자/알파벳 + 문양 알파벳(대소문자 구분 x)
         - 취소는 x 입력
@@ -198,6 +242,8 @@
 
 ### 페이즈 승리
 
+<img width="680" height="251" alt="image" src="https://github.com/user-attachments/assets/bd71869e-ebc6-482e-9801-cb59670eb51a" />
+
 - [x] 마지막으로 카드를 낸 사람 이후로, 나머지 참가자 3명이 모두 패스하면 페이즈 승리
 - [x] 페이즈에 승리하면 테이블에 있던 모든 카드를 승리한 참가자가 획득
     - [x] 용으로 페이즈를 승리한 경우, 상대 팀 참가자를 선택해 획득한 카드 전달
@@ -206,14 +252,20 @@
             - [x] 입력값이 비어 있을 경우
             - [x] 입력된 이름과 동일한 이름의 참가자가 없을 경우
             - [x] 입력된 이름의 참가자가 같은 팀일 경우
+            - [x] 입력된 이름의 참가자가 이미 라운드를 종료한 경우
 
 ### 라운드 종료
+
+<img width="675" height="58" alt="image" src="https://github.com/user-attachments/assets/477fefce-867d-4072-b11e-6c4552906924" />
+<img width="418" height="57" alt="image" src="https://github.com/user-attachments/assets/87ccc36d-f190-408e-a99f-5c96266f1df8" />
 
 - [x] 4등이 정해지면 라운드 종료
     - [x] 3등이 정해지면 나머지 참가자가 자동으로 4등
 - [x] 한 팀이 1, 2등이 됐을 경우엔 바로 라운드 종료
 
 ### 점수 계산
+
+<img width="232" height="253" alt="image" src="https://github.com/user-attachments/assets/bac6b7d6-3b9a-4cea-9130-bebea7e19779" />
 
 - [x] 4등이 획득한 카드는 1등에게, 4등이 마지막까지 들고 있던 카드는 상대 팀에게 전달
 - [x] 팀이 획득한 점수 카드 계산
@@ -223,6 +275,8 @@
 - [x] 점수 카드 계산 이후 티츄 성공 여부를 합산해 최종 점수 계산
 
 ### 게임 종료
+
+<img width="404" height="276" alt="image" src="https://github.com/user-attachments/assets/bb4810f2-bf8c-4091-8c4d-9dff5e701563" />
 
 - [x] 한 팀이라도 점수가 1000점 이상이 되면 게임 종료
 - [x] 먼저 1000점을 달성한 팀이 승리
