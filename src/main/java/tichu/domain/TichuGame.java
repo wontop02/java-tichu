@@ -13,13 +13,14 @@ import tichu.enums.Team;
 public class TichuGame {
     private static final int GOAL_SCORE = 1000;
     private static final String INCORRECT_PLAYER_NUMBER = "참가자 수는 반드시 4명이어야 합니다.";
+    private static final String INVALID_NAME_LENGTH = "참가자 이름은 최대 5글자로 입력 가능합니다.";
 
     private final List<Player> playersWithDirection;
     private final Map<Team, Integer> teamScore;
     private int roundNumber = 0;
 
     public TichuGame(List<String> names) {
-        validatePlayerCount(names);
+        validate(names);
         this.playersWithDirection = decisionDirection(names);
         this.teamScore = new HashMap<>();
         teamScore.put(RED, 0);
@@ -32,9 +33,22 @@ public class TichuGame {
         return new Round(playersWithDirection);
     }
 
+    private void validate(List<String> names) {
+        validatePlayerCount(names);
+        validatePlayerName(names);
+    }
+
     private void validatePlayerCount(List<String> names) {
         if (names.size() != 4) {
             throw new IllegalArgumentException(INCORRECT_PLAYER_NUMBER);
+        }
+    }
+
+    private void validatePlayerName(List<String> names) {
+        for (String name : names) {
+            if (name.length() > 5) {
+                throw new IllegalArgumentException(INVALID_NAME_LENGTH);
+            }
         }
     }
 
