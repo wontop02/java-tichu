@@ -9,6 +9,7 @@ public class InputValidator {
     private static final String NOT_ENGLISH_AND_KOREAN_ONLY = "한글(자음 모음 조합)과 영어만 입력이 가능합니다.";
     private static final String DUPLICATED = "중복된 입력은 허용하지 않습니다.";
     private static final String INVALID_CARD_FORMAT = "카드 입력 형식(숫자/알파벳+문양[s,d,h,c])이 올바르지 않습니다.";
+    private static final String INVALID_CALL_FORMAT = "콜 입력 형식(2-10,J,Q,K,A 중 하나)이 올바르지 않습니다.";
     private static final String RESERVED_WORD = "프로그램 진행 시 필요한 예약어(x,p)를 포함할 수 없습니다.";
 
     private static final String PASS_RESERVED_WORD = "p";
@@ -47,7 +48,7 @@ public class InputValidator {
     public static void validateCallRank(String input) {
         validateNotBlank(input);
         if (!input.matches(CALL_RANK_FORMAT)) {
-            throw new IllegalArgumentException(INVALID_CARD_FORMAT);
+            throw new IllegalArgumentException(INVALID_CALL_FORMAT);
         }
     }
 
