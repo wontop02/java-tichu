@@ -218,8 +218,17 @@ public class TichuGameController {
 
                 return round.calculateScore();
             } catch (PhaseEndSignal e) {
-                round.endPhaseWithDog(phase);
-                OutputView.printMessage(e.getMessage());
+                try {
+                    Player dogPlayer = phase.getPhaseWinner();
+                    round.endPhaseWithDog(phase);
+                    if (dogPlayer.getCardCount() == 0) {
+                        round.checkRoundPlace(dogPlayer);
+                    }
+                    OutputView.printMessage(e.getMessage());
+                } catch (RoundEndSignal signal) {
+                    OutputView.printMessage(signal.getMessage());
+                    return round.calculateScore();
+                }
             } catch (RoundEndSignal e) {
                 // 원투면 4등이 없을 수도 있음
                 if (phase != null) {

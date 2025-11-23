@@ -205,6 +205,11 @@ public class Round {
     }
 
     public boolean isRoundEnd() {
+        if (playerPlace.size() == 2) {
+            Player first = playerPlace.get(FIRST);
+            Player second = playerPlace.get(SECOND);
+            return first.getTeam() == second.getTeam();
+        }
         if (playerPlace.size() == 3 && !playerPlace.containsKey(FOURTH)) {
             for (Player player : players) {
                 if (!playerPlace.containsValue(player)) {
