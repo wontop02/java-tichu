@@ -68,7 +68,7 @@ public class CombinationEvaluator {
         return null;
     }
 
-    private static List<Card> substitutePhoenix(List<Card> cards, Rank substituteRank) {
+    public static List<Card> substitutePhoenix(List<Card> cards, Rank substituteRank) {
         List<Card> substituteCards = new ArrayList<>();
         for (Card card : cards) {
             if (card.isPhoenix()) {
