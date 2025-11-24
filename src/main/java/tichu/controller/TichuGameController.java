@@ -344,11 +344,11 @@ public class TichuGameController {
         phase.evaluateCombination(player, combination, round);
 
         if (combination.hasMahjong()) {
-            inputCallRank(phase, round);
+            inputCallRank(round);
         }
     }
 
-    private void inputCallRank(Phase phase, Round round) {
+    private void inputCallRank(Round round) {
         while (true) {
             try {
                 String input = InputView.requestCallRank();
