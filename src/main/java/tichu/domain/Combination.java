@@ -37,11 +37,8 @@ public class Combination {
         if (myBomb && otherBomb) {
             return compareBomb(other);
         }
-        if (thisType != otherType) {
-            throw new IllegalArgumentException(INCOMPARABLE);
-        }
         // 같은 타입이어도 장수 다르면 비교 불가
-        if (this.cards.size() != other.cards.size()) {
+        if ((thisType != otherType) || this.cards.size() != other.cards.size()) {
             throw new IllegalArgumentException(INCOMPARABLE);
         }
         Rank myRank = this.getTopRank();
@@ -68,12 +65,6 @@ public class Combination {
             if (this.cards.size() < other.cards.size()) {
                 return -1;
             }
-
-            // 길이 같으면 topRank 비교
-            return Integer.compare(
-                    this.getTopRank().getPriority(),
-                    other.getTopRank().getPriority()
-            );
         }
         return Integer.compare(
                 this.getTopRank().getPriority(),

@@ -205,9 +205,7 @@ public class Round {
             }
         }
         for (Player player : players) {
-            player.clearMyCards();
-            player.clearAcquireCards();
-            player.resetTichuStatus();
+            player.resetStatus();
         }
         return Map.copyOf(teamScore);
     }
@@ -226,20 +224,7 @@ public class Round {
         }
 
         Player fourth = playerPlace.get(FOURTH);
-        Team fourthTeam = fourth.getTeam();
-        Team otherTeam = RED;
-        if (fourthTeam == RED) {
-            otherTeam = BLUE;
-        }
-
-        // 1등에게 얻은 점수 줌
-        first.addAcquireCards(fourth.getAcquiredCards());
-        fourth.clearAcquireCards();
-
-        // 다른 팀에게 마지막까지 들고 있던 카드 점수 줌
-        int fourthHandScore = fourth.calculateMyCardScore();
-        cardScore.put(otherTeam, cardScore.get(otherTeam) + fourthHandScore);
-        fourth.clearMyCards();
+        giveFourthCards(cardScore, first, fourth);
 
         for (Player player : players) {
             if (player == fourth) {
@@ -250,6 +235,23 @@ public class Round {
                     cardScore.get(player.getTeam()) + score);
         }
         return cardScore;
+    }
+
+    private void giveFourthCards(Map<Team, Integer> cardScore, Player first, Player fourth) {
+        Team fourthTeam = fourth.getTeam();
+        Team otherTeam = RED;
+        if (fourthTeam == RED) {
+            otherTeam = BLUE;
+        }
+
+        // 1등에게 얻은 점수 줌
+        first.addAcquireCards(fourth.getAcquiredCards());
+
+        // 다른 팀에게 마지막까지 들고 있던 카드 점수 줌
+        int fourthHandScore = fourth.calculateMyCardScore();
+        cardScore.put(otherTeam, cardScore.get(otherTeam) + fourthHandScore);
+        
+        fourth.resetStatus();
     }
 
     private void applyTichuScore(Map<Team, Integer> teamScore, Player player, Player first, int point) {
@@ -264,7 +266,7 @@ public class Round {
     private boolean isEndPlayer(Player player) {
         return playerPlace.containsValue(player);
     }
-    
+
     private Player findPlayerByName(String name) {
         return players.stream()
                 .filter(p -> p.getName().equals(name))

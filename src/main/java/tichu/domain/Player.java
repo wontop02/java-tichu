@@ -36,11 +36,6 @@ public class Player {
         isSmallTichu = true;
     }
 
-    public void resetTichuStatus() {
-        isLargeTichu = false;
-        isSmallTichu = false;
-    }
-
     public void addMyCards(List<Card> card) {
         myCards.addAll(card);
         Collections.sort(myCards);
@@ -54,12 +49,23 @@ public class Player {
         myCards.removeAll(cards);
     }
 
-    public void clearMyCards() {
+    public void resetStatus() {
+        clearMyCards();
+        clearAcquireCards();
+        resetTichuStatus();
+    }
+
+    private void clearMyCards() {
         myCards.clear();
     }
 
-    public void clearAcquireCards() {
+    private void clearAcquireCards() {
         acquiredCards.clear();
+    }
+
+    private void resetTichuStatus() {
+        isLargeTichu = false;
+        isSmallTichu = false;
     }
 
     public void validateContainMyCard(Card card) {

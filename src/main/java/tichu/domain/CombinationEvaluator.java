@@ -29,7 +29,6 @@ public class CombinationEvaluator {
         }
 
         boolean hasPhoenix = containsPhoenix(sorted);
-
         if (hasPhoenix) {
             CombinationResult withPhoenixResult = evaluateWithPhoenix(sorted);
             if (withPhoenixResult != null) {
@@ -169,8 +168,7 @@ public class CombinationEvaluator {
             }
         }
         return IntStream.range(0, cards.size() - 1)
-                .allMatch(i ->
-                        cards.get(i + 1).getRankPriority() - cards.get(i).getRankPriority() == 1);
+                .allMatch(i -> cards.get(i + 1).getRankPriority() - cards.get(i).getRankPriority() == 1);
     }
 
     private static boolean isPairSequence(List<Card> cards) {
@@ -183,15 +181,12 @@ public class CombinationEvaluator {
             }
         }
         boolean allPairs = IntStream.iterate(0, i -> i < cards.size(), i -> i + 2)
-                .allMatch(i ->
-                        cards.get(i).getRank() == cards.get(i + 1).getRank());
+                .allMatch(i -> cards.get(i).getRank() == cards.get(i + 1).getRank());
         if (!allPairs) {
             return false;
         }
         return IntStream.iterate(0, i -> i < cards.size() - 2, i -> i + 2)
-                .allMatch(i ->
-                        cards.get(i + 2).getRankPriority()
-                                - cards.get(i).getRankPriority() == 1);
+                .allMatch(i -> cards.get(i + 2).getRankPriority() - cards.get(i).getRankPriority() == 1);
     }
 
     private static boolean isBombFourCord(List<Card> cards) {

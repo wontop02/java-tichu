@@ -19,7 +19,6 @@ import tichu.enums.Rank;
 import tichu.enums.Suit;
 
 public class CombinationFinder {
-
     public static boolean hasStrongCombinationWithCall(List<Card> cards, Rank calledRank, Combination combination) {
         boolean includesCalledRank = cards.stream().anyMatch(card -> card.getRank() == calledRank);
         if (!includesCalledRank) {
@@ -133,21 +132,7 @@ public class CombinationFinder {
         if (distinctRanks.size() < straightLength) {
             return false;
         }
-
-        for (int i = 0; i <= distinctRanks.size() - straightLength; i++) {
-            List<Rank> partRanks = distinctRanks.subList(i, i + straightLength);
-            Rank firstRank = partRanks.getFirst();
-            Rank lastRank = partRanks.getLast();
-
-            boolean isStraight = (lastRank.getPriority() - firstRank.getPriority() == straightLength - 1);
-            boolean includesCalledRank = partRanks.contains(calledRank);
-            boolean isStronger = (lastRank.getPriority() > combinationTopCard.getRankPriority());
-
-            if (isStraight && includesCalledRank && isStronger) {
-                return true;
-            }
-        }
-        return false;
+        return isStraight(distinctRanks, straightLength, calledRank, combinationTopCard);
     }
 
     private static boolean hasStrongPairSequence(List<Card> cards, Rank calledRank, Combination combination) {
@@ -169,17 +154,20 @@ public class CombinationFinder {
         if (pairRanks.size() < pairSequenceRankCount) {
             return false;
         }
+        return isStraight(pairRanks, pairSequenceRankCount, calledRank, combinationTopCard);
+    }
 
-        for (int i = 0; i <= pairRanks.size() - pairSequenceRankCount; i++) {
-            List<Rank> partRanks = pairRanks.subList(i, i + pairSequenceRankCount);
+    private static boolean isStraight(List<Rank> ranks, int straightLength, Rank calledRank, Card topCard) {
+        for (int i = 0; i <= ranks.size() - straightLength; i++) {
+            List<Rank> partRanks = ranks.subList(i, i + straightLength);
             Rank firstRank = partRanks.getFirst();
             Rank lastRank = partRanks.getLast();
 
-            boolean isSequence = (lastRank.getPriority() - firstRank.getPriority() == pairSequenceRankCount - 1);
+            boolean isStraight = (lastRank.getPriority() - firstRank.getPriority() == straightLength - 1);
             boolean includesCalledRank = partRanks.contains(calledRank);
-            boolean isStronger = (lastRank.getPriority() > combinationTopCard.getRankPriority());
+            boolean isStronger = (lastRank.getPriority() > topCard.getRankPriority());
 
-            if (isSequence && includesCalledRank && isStronger) {
+            if (isStraight && includesCalledRank && isStronger) {
                 return true;
             }
         }
@@ -206,7 +194,6 @@ public class CombinationFinder {
     }
 
     private static boolean hasStrongBombStraightFlush(List<Card> cards, Rank calledRank, Combination combination) {
-        Card combinationTopCard = combination.getTopCard();
         CombinationType combinationType = combination.getCombinationType();
 
         List<Card> normalCards = cards.stream()
@@ -222,55 +209,60 @@ public class CombinationFinder {
             requireBombSize = combination.getCards().size();
         }
 
+        return findStraightParts(suitedCards, requireBombSize, calledRank, combination);
+    }
+
+    private static boolean findStraightParts(Map<Suit, List<Card>> suitedCards, int requireBombSize, Rank calledRank,
+                                             Combination combination) {
         for (List<Card> suitCards : suitedCards.values()) {
             if (suitCards.size() < requireBombSize) {
                 continue;
             }
-            int start = 0;
-            for (int i = 0; i < suitCards.size(); i++) {
-                boolean isLast = false;
-                if (i == suitCards.size() - 1) {
-                    isLast = true;
-                }
-
-                boolean broken = false;
-                if (!isLast) {
-                    int nextPriority = suitCards.get(i + 1).getRankPriority();
-                    int currentPriority = suitCards.get(i).getRankPriority();
-                    if (!(nextPriority - currentPriority == 1)) {
-                        broken = true;
-                    }
-                }
-
-                if (!broken && !isLast) {
-                    continue;
-                }
-
-                int end = i + 1;
-                List<Card> partCards = suitCards.subList(start, end);
-
+            List<List<Card>> straightParts = extractStraightParts(suitCards);
+            for (List<Card> partCards : straightParts) {
                 if (partCards.size() < requireBombSize) {
-                    start = i + 1;
                     continue;
                 }
                 boolean includesCalledRank = partCards.stream()
                         .anyMatch(card -> card.getRank() == calledRank);
                 if (!includesCalledRank) {
-                    start = i + 1;
                     continue;
                 }
-                if (!combination.isBomb() || combinationType == BOMB_FOUR_CARD) {
+                if (isStrongBombStraightFlush(partCards, requireBombSize, combination)) {
                     return true;
                 }
-                if (partCards.size() > requireBombSize) {
-                    return true;
-                }
-                if (partCards.size() == requireBombSize &&
-                        partCards.getLast().getRankPriority() > combinationTopCard.getRankPriority()) {
-                    return true;
-                }
-                start = i + 1;
             }
+        }
+        return false;
+    }
+
+    private static List<List<Card>> extractStraightParts(List<Card> cards) {
+        List<List<Card>> straightParts = new ArrayList<>();
+        int start = 0;
+
+        for (int i = 1; i <= cards.size(); i++) {
+            boolean endStraight = (i == cards.size())
+                    || cards.get(i).getRankPriority() - cards.get(i - 1).getRankPriority() != 1;
+            if (endStraight) {
+                straightParts.add(cards.subList(start, i));
+                start = i;
+            }
+        }
+        return straightParts;
+    }
+
+    private static boolean isStrongBombStraightFlush(List<Card> cards, int requireBombSize, Combination combination) {
+        Card combinationTopCard = combination.getTopCard();
+        CombinationType combinationType = combination.getCombinationType();
+        if (!combination.isBomb() || combinationType == BOMB_FOUR_CARD) {
+            return true;
+        }
+        if (cards.size() > requireBombSize) {
+            return true;
+        }
+        if (cards.size() == requireBombSize &&
+                cards.getLast().getRankPriority() > combinationTopCard.getRankPriority()) {
+            return true;
         }
         return false;
     }

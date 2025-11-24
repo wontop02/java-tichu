@@ -206,15 +206,7 @@ public class Phase {
         Player player = findPlayer(name);
         Combination bombCombination = new Combination(cards);
         Rank calledRank = round.getCalledRank();
-        if (lastCombination == null) {
-            throw new IllegalArgumentException(CANNOT_USE_BOMB);
-        }
-        if (!bombCombination.isBomb()) {
-            throw new IllegalArgumentException(NOT_BOMB);
-        }
-        if (bombCombination.compareTo(lastCombination) != 1) {
-            throw new IllegalArgumentException(MUST_STRONG_BOMB);
-        }
+        validateBomb(bombCombination);
         lastCombination = bombCombination;
         if (bombCombination.hasCallRank(calledRank)) {
             round.callEnd();
@@ -227,6 +219,18 @@ public class Phase {
         phaseCards.addAll(bombCombination.getCards());
 
         nextTurn();
+    }
+
+    private void validateBomb(Combination bombCombination) {
+        if (lastCombination == null) {
+            throw new IllegalArgumentException(CANNOT_USE_BOMB);
+        }
+        if (!bombCombination.isBomb()) {
+            throw new IllegalArgumentException(NOT_BOMB);
+        }
+        if (bombCombination.compareTo(lastCombination) != 1) {
+            throw new IllegalArgumentException(MUST_STRONG_BOMB);
+        }
     }
 
     public Player findPlayer(String name) {
