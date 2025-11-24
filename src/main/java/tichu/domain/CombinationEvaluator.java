@@ -52,6 +52,9 @@ public class CombinationEvaluator {
         List<Rank> ranks = new ArrayList<>(List.of(Rank.values()));
         Collections.reverse(ranks);
         for (Rank substituteRank : ranks) {
+            if (substituteRank == Rank.ONE || substituteRank == Rank.DRAGON) {
+                continue;
+            }
             List<Card> substituteCards = substitutePhoenix(cards, substituteRank);
             CombinationResult result = evaluateNormalCombination(substituteCards);
             if (result == null || result.getType() == BOMB_FOUR_CARD || result.getType() == BOMB_STRAIGHT_FLUSH) {
