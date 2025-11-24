@@ -27,8 +27,8 @@ public class CombinationFinder {
         if (combination == null) {
             return true;
         }
-        if (combination.isBomb()) {
-            return hasStrongBomb(cards, calledRank, combination);
+        if (hasStrongBomb(cards, calledRank, combination)) {
+            return true;
         }
         return hasStrongNormalCombination(cards, calledRank, combination);
     }
