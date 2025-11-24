@@ -1,5 +1,6 @@
 package tichu.domain;
 
+import static tichu.domain.CombinationEvaluator.containsPhoenix;
 import static tichu.enums.CombinationType.BOMB_FOUR_CARD;
 import static tichu.enums.CombinationType.BOMB_STRAIGHT_FLUSH;
 import static tichu.enums.CombinationType.FULL_HOUSE;
@@ -78,6 +79,10 @@ public class CombinationFinder {
         if (combinationTopCard.getRankPriority() >= calledRank.getPriority()) {
             return false;
         }
+        if (containsPhoenix(cards)) {
+            return cards.stream()
+                    .anyMatch(card -> card.getRank() == calledRank);
+        }
         return cards.stream()
                 .filter(card -> card.getRank() == calledRank)
                 .count() >= 2;
@@ -88,6 +93,11 @@ public class CombinationFinder {
         if (combinationTopCard.getRankPriority() >= calledRank.getPriority()) {
             return false;
         }
+        if (containsPhoenix(cards)) {
+            return cards.stream()
+                    .filter(card -> card.getRank() == calledRank)
+                    .count() >= 2;
+        }
         return cards.stream()
                 .filter(card -> card.getRank() == calledRank)
                 .count() >= 3;
@@ -95,35 +105,62 @@ public class CombinationFinder {
 
     private static boolean hasStrongFullHouse(List<Card> cards, Rank calledRank, Combination combination) {
         Rank topRank = combination.getTopRank();
-        if (topRank.getPriority() >= calledRank.getPriority()) {
-            return false;
-        }
-
+        boolean hasPhoenix = containsPhoenix(cards);
         long callCount = cards.stream()
                 .filter(c -> c.getRank() == calledRank)
                 .count();
 
-        boolean callPair = callCount >= 2;
-        boolean callTriple = callCount >= 3;
-
         Map<Rank, Long> otherRanks = cards.stream()
-                .filter(c -> c.getRank() != calledRank)
+                .filter(c -> (c.getRank() != calledRank) && !c.isSpecial())
                 .collect(Collectors.groupingBy(Card::getRank, Collectors.counting()));
 
-        boolean otherPair = otherRanks.values().stream()
-                .anyMatch(count -> count >= 2);
-        boolean otherTriple = otherRanks.values().stream()
-                .anyMatch(count -> count >= 3);
+        if (hasStrongFullHouseWithCallTriple(callCount, hasPhoenix, otherRanks, calledRank, topRank)) {
+            return true;
+        }
+        return hasStrongFullHouseWithCallPair(callCount, hasPhoenix, otherRanks, topRank);
+    }
 
-        return (callPair && otherTriple) || (callTriple && otherPair);
+    private static boolean hasStrongFullHouseWithCallTriple(long callCount, boolean hasPhoenix,
+                                                            Map<Rank, Long> otherRanks, Rank calledRank, Rank topRank) {
+        boolean callTriple = (callCount >= 3) || (callCount == 2 && hasPhoenix);
+        boolean usedPhoenixForTriple = (callCount == 2 && hasPhoenix);
+        if (callTriple) {
+            for (Map.Entry<Rank, Long> entry : otherRanks.entrySet()) {
+                long count = entry.getValue();
+
+                boolean otherPair = (count >= 2) || (count == 1 && hasPhoenix && !usedPhoenixForTriple);
+                if (otherPair && (calledRank.getPriority() > topRank.getPriority())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasStrongFullHouseWithCallPair(long callCount, boolean hasPhoenix,
+                                                          Map<Rank, Long> otherRanks, Rank topRank) {
+        boolean callPair = (callCount >= 2) || (callCount >= 1 && hasPhoenix);
+        boolean usedPhoenixForPair = (callCount == 1 && hasPhoenix);
+        if (callPair) {
+            for (Map.Entry<Rank, Long> entry : otherRanks.entrySet()) {
+                long count = entry.getValue();
+                Rank TripleRank = entry.getKey();
+
+                boolean otherTriple = (count >= 3) || (count == 2 && hasPhoenix && !usedPhoenixForPair);
+                if (otherTriple && (TripleRank.getPriority() > topRank.getPriority())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static boolean hasStrongStraight(List<Card> cards, Rank calledRank, Combination combination) {
-        Card combinationTopCard = combination.getTopCard();
+        Rank topRank = combination.getTopRank();
         int straightLength = combination.getCards().size();
 
         List<Rank> distinctRanks = new ArrayList<>(cards.stream()
-                .filter(card -> !card.isDog() && !card.isDragon())
+                .filter(card -> !card.isDog() && !card.isDragon() && !card.isPhoenix())
                 .map(Card::getRank)
                 .distinct()
                 .sorted(Comparator.comparing(Rank::getPriority))
@@ -132,16 +169,16 @@ public class CombinationFinder {
         if (distinctRanks.size() < straightLength) {
             return false;
         }
-        return isStraight(distinctRanks, straightLength, calledRank, combinationTopCard);
+        return isStraight(distinctRanks, straightLength, calledRank, topRank);
     }
 
     private static boolean hasStrongPairSequence(List<Card> cards, Rank calledRank, Combination combination) {
-        Card combinationTopCard = combination.getTopCard();
+        Rank topRank = combination.getTopRank();
         int pairSequenceLength = combination.getCards().size();
         int pairSequenceRankCount = pairSequenceLength / 2;
 
         Map<Rank, Long> rankCounts = cards.stream()
-                .filter(card -> !card.isDog() && !card.isDragon()) // 특수 카드 제외
+                .filter(card -> !card.isSpecial()) // 특수 카드 제외
                 .map(Card::getRank)
                 .collect(Collectors.groupingBy(rank -> rank, Collectors.counting()));
 
@@ -154,10 +191,10 @@ public class CombinationFinder {
         if (pairRanks.size() < pairSequenceRankCount) {
             return false;
         }
-        return isStraight(pairRanks, pairSequenceRankCount, calledRank, combinationTopCard);
+        return isStraight(pairRanks, pairSequenceRankCount, calledRank, topRank);
     }
 
-    private static boolean isStraight(List<Rank> ranks, int straightLength, Rank calledRank, Card topCard) {
+    private static boolean isStraight(List<Rank> ranks, int straightLength, Rank calledRank, Rank topRank) {
         for (int i = 0; i <= ranks.size() - straightLength; i++) {
             List<Rank> partRanks = ranks.subList(i, i + straightLength);
             Rank firstRank = partRanks.getFirst();
@@ -165,7 +202,7 @@ public class CombinationFinder {
 
             boolean isStraight = (lastRank.getPriority() - firstRank.getPriority() == straightLength - 1);
             boolean includesCalledRank = partRanks.contains(calledRank);
-            boolean isStronger = (lastRank.getPriority() > topCard.getRankPriority());
+            boolean isStronger = (lastRank.getPriority() > topRank.getPriority());
 
             if (isStraight && includesCalledRank && isStronger) {
                 return true;
@@ -175,7 +212,7 @@ public class CombinationFinder {
     }
 
     private static boolean hasStrongBombFourCard(List<Card> cards, Rank calledRank, Combination combination) {
-        Card combinationTopCard = combination.getTopCard();
+        Rank topRank = combination.getTopRank();
         CombinationType combinationType = combination.getCombinationType();
 
         long calledRankCount = cards.stream()
@@ -185,7 +222,7 @@ public class CombinationFinder {
         if (calledRankCount >= 4) {
             if (combinationType != BOMB_STRAIGHT_FLUSH) {
                 if (!combination.isBomb()
-                        || calledRank.getPriority() > combinationTopCard.getRankPriority()) {
+                        || calledRank.getPriority() > topRank.getPriority()) {
                     return true;
                 }
             }
@@ -252,7 +289,7 @@ public class CombinationFinder {
     }
 
     private static boolean isStrongBombStraightFlush(List<Card> cards, int requireBombSize, Combination combination) {
-        Card combinationTopCard = combination.getTopCard();
+        Rank topRank = combination.getTopRank();
         CombinationType combinationType = combination.getCombinationType();
         if (!combination.isBomb() || combinationType == BOMB_FOUR_CARD) {
             return true;
@@ -261,7 +298,7 @@ public class CombinationFinder {
             return true;
         }
         if (cards.size() == requireBombSize &&
-                cards.getLast().getRankPriority() > combinationTopCard.getRankPriority()) {
+                cards.getLast().getRankPriority() > topRank.getPriority()) {
             return true;
         }
         return false;

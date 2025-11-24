@@ -43,7 +43,7 @@ public class CombinationEvaluator {
         return result;
     }
 
-    private static boolean containsPhoenix(List<Card> cards) {
+    public static boolean containsPhoenix(List<Card> cards) {
         return cards.stream().anyMatch(Card::isPhoenix);
     }
 
