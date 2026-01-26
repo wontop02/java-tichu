@@ -38,9 +38,11 @@ class RoundTest {
         List<String> names = List.of("영희", "주영", "민지", "철수");
         TichuGame game = new TichuGame(names);
         Round round = game.startRound();
+        round.dealCards6();
 
         List<String> tichuPlayer = List.of("주영");
-        round.addSmallTichu(tichuPlayer);
+        round.addLargeTichu(tichuPlayer);
+        round.dealCards8();
 
         assertThatThrownBy(() -> round.addSmallTichu(tichuPlayer))
                 .isInstanceOf(IllegalArgumentException.class)

@@ -2,12 +2,11 @@ package tichu.domain;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static tichu.enums.CombinationType.FULL_HOUSE;
-import static tichu.enums.CombinationType.STRAIGHT;
 
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import tichu.enums.CombinationType;
 import tichu.enums.Rank;
 import tichu.util.InputValidator;
 
@@ -33,7 +32,7 @@ public class CombinationEvaluatorTest {
 
         CombinationResult result = CombinationEvaluator.evaluate(cards);
 
-        assertEquals(STRAIGHT, result.getType());
+        assertEquals(CombinationType.STRAIGHT, result.getType());
     }
 
     @DisplayName("봉이 포함된 카드 리스트에서 풀하우스를 찾는다.")
@@ -45,7 +44,7 @@ public class CombinationEvaluatorTest {
 
         CombinationResult result = CombinationEvaluator.evaluate(cards);
 
-        assertEquals(FULL_HOUSE, result.getType());
+        assertEquals(CombinationType.FULL_HOUSE, result.getType());
         assertEquals(Rank.ACE, result.getTopCard().getRank());
     }
 

@@ -32,6 +32,6 @@ class InputValidatorTest {
     void 카드_형식이_잘못_입력되면_예외가_발생한다(String input) {
         assertThatThrownBy(() -> InputValidator.validateCardInput(input))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("카드 형식이 올바르지 않습니다.");
+                .hasMessage("카드 입력 형식(숫자/알파벳+문양[s,d,h,c])이 올바르지 않습니다.");
     }
 }
