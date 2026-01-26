@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import tichu.enums.Rank;
-import tichu.enums.Special;
 import tichu.enums.Suit;
 
 public class Deck {
@@ -20,16 +19,16 @@ public class Deck {
                 continue;
             }
             for (Rank rank : Rank.values()) {
-                if (rank == Rank.ONE || rank == Rank.DRAGON) {
+                if (rank.isSpecial()) {
                     continue;
                 }
                 this.cards.add(new Card(rank, suit));
             }
         }
-        this.cards.add(new Card(Special.DOG));
-        this.cards.add(new Card(Special.MAHJONG));
-        this.cards.add(new Card(Special.PHOENIX));
-        this.cards.add(new Card(Special.DRAGON));
+        this.cards.add(new Card(Rank.DOG, Suit.NONE));
+        this.cards.add(new Card(Rank.MAHJONG, Suit.NONE));
+        this.cards.add(new Card(Rank.PHOENIX, Suit.NONE));
+        this.cards.add(new Card(Rank.DRAGON, Suit.NONE));
     }
 
     public List<Card> deal(int count) {

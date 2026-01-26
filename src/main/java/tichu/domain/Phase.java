@@ -159,16 +159,17 @@ public class Phase {
         int phoenixIndex = phaseCards.size() - 1;
         boolean hasBeforeCard = phoenixIndex > 0;
         if (lastCombination.isSinglePhoenix()) {
+            // 처음에 싱글로 낸 phoenix는 mahjong과 같은 Rank로 취급
             if (!hasBeforeCard) {
-                return Rank.ONE;
+                return Rank.MAHJONG;
             }
             if (phaseCards.get(phoenixIndex - 1).isMahjong()) {
-                return Rank.ONE;
+                return Rank.MAHJONG;
             }
             return phaseCards.get(phoenixIndex - 1).getRank();
         }
         if (lastCombination.isMahjong()) {
-            return Rank.ONE;
+            return Rank.MAHJONG;
         }
         if (lastCombination.isDragon()) {
             return Rank.DRAGON;

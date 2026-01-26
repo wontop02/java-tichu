@@ -3,34 +3,35 @@ package tichu.enums;
 import java.util.Arrays;
 
 public enum Rank {
-    // 봉 처음 냈을 때, 1 냈을 때 전용
-    ONE("1", 1),
+    TWO("2", 2, false),
+    THREE("3", 3, false),
+    FOUR("4", 4, false),
+    FIVE("5", 5, false),
+    SIX("6", 6, false),
+    SEVEN("7", 7, false),
+    EIGHT("8", 8, false),
+    NINE("9", 9, false),
+    TEN("10", 10, false),
+    JACK("J", 11, false),
+    QUEEN("Q", 12, false),
+    KING("K", 13, false),
+    ACE("A", 14, false),
 
-    TWO("2", 2),
-    THREE("3", 3),
-    FOUR("4", 4),
-    FIVE("5", 5),
-    SIX("6", 6),
-    SEVEN("7", 7),
-    EIGHT("8", 8),
-    NINE("9", 9),
-    TEN("10", 10),
-    JACK("J", 11),
-    QUEEN("Q", 12),
-    KING("K", 13),
-    ACE("A", 14),
-
-    // 용 전용 Rank
-    DRAGON("용", 15);
+    DOG("개", 0, true),
+    MAHJONG("1", 1, true),
+    PHOENIX("봉", 15, true),
+    DRAGON("용", 16, true);
 
     private static final String INVALID_RANK = "해당 카드 등급은 존재하지 않습니다.";
 
     private final String rank;
     private final int priority;
+    private final boolean isSpecial;
 
-    Rank(String rank, int priority) {
+    Rank(String rank, int priority, boolean isSpecial) {
         this.rank = rank;
         this.priority = priority;
+        this.isSpecial = isSpecial;
     }
 
     public static Rank valueOfRank(String rank) {
@@ -46,5 +47,9 @@ public enum Rank {
 
     public int getPriority() {
         return priority;
+    }
+
+    public boolean isSpecial() {
+        return isSpecial;
     }
 }

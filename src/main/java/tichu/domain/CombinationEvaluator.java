@@ -52,7 +52,7 @@ public class CombinationEvaluator {
         List<Rank> ranks = new ArrayList<>(List.of(Rank.values()));
         Collections.reverse(ranks);
         for (Rank substituteRank : ranks) {
-            if (substituteRank == Rank.ONE || substituteRank == Rank.DRAGON) {
+            if (substituteRank.isSpecial()) {
                 continue;
             }
             List<Card> substituteCards = substitutePhoenix(cards, substituteRank);

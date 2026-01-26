@@ -2,42 +2,26 @@ package tichu.domain;
 
 import java.util.Objects;
 import tichu.enums.Rank;
-import tichu.enums.Special;
 import tichu.enums.Suit;
 
 public class Card implements Comparable<Card> {
     private final Rank rank;
     private final Suit suit;
-    private final Special special; // 일반카드면 null
 
     public Card(Rank rank, Suit suit) {
         this.rank = rank;
         this.suit = suit;
-        this.special = null;
-    }
-
-    public Card(Special special) {
-        this.suit = null;
-        this.rank = null;
-        this.special = special;
     }
 
     @Override
     public int compareTo(Card other) {
-        if (this.priority() != other.priority()) {
-            return this.priority() - other.priority();
+        if (this.rank.getPriority() != other.rank.getPriority()) {
+            return this.rank.getPriority() - other.rank.getPriority();
         }
-        if (this.special == null) {
+        if (!this.rank.isSpecial()) {
             return this.suit.getPriority() - other.suit.getPriority();
         }
         return 0;
-    }
-
-    private int priority() {
-        if (this.special != null) {
-            return this.special.getPriority();
-        }
-        return this.rank.getPriority();
     }
 
     @Override
@@ -50,13 +34,12 @@ public class Card implements Comparable<Card> {
         }
         Card card = (Card) o;
         return rank == card.rank &&
-                suit == card.suit &&
-                special == card.special;
+                suit == card.suit;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rank, suit, special);
+        return Objects.hash(rank, suit);
     }
 
     public Rank getRank() {
@@ -67,34 +50,31 @@ public class Card implements Comparable<Card> {
         return suit;
     }
 
-    public Special getSpecial() {
-        return special;
+    public String getSpecialRank() {
+        return rank.getRank();
     }
 
     public int getRankPriority() {
-        if (isSpecial()) {
-            return special.getPriority();
-        }
         return rank.getPriority();
     }
 
     public boolean isSpecial() {
-        return special != null;
+        return rank.isSpecial();
     }
 
     public boolean isDog() {
-        return special == Special.DOG;
+        return rank == Rank.DOG;
     }
 
     public boolean isMahjong() {
-        return special == Special.MAHJONG;
+        return rank == Rank.MAHJONG;
     }
 
     public boolean isDragon() {
-        return special == Special.DRAGON;
+        return rank == Rank.DRAGON;
     }
 
     public boolean isPhoenix() {
-        return special == Special.PHOENIX;
+        return rank == Rank.PHOENIX;
     }
 }
