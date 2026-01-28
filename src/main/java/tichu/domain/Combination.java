@@ -22,29 +22,20 @@ public class Combination {
 
     // 조합 간 비교
     public int compareTo(Combination other) {
-        CombinationType thisType = combinationResult.getType();
-        CombinationType otherType = other.combinationResult.getType();
-
-        boolean myBomb = this.isBomb();
-        boolean otherBomb = other.isBomb();
-
-        if (myBomb && !otherBomb) {
+        if (this.isBomb() && !other.isBomb()) {
             return 1;
         }
-        if (!myBomb && otherBomb) {
+        if (!this.isBomb() && other.isBomb()) {
             return -1;
         }
-        if (myBomb && otherBomb) {
+        if (this.isBomb()) {
             return compareBomb(other);
         }
         // 같은 타입이어도 장수 다르면 비교 불가
-        if ((thisType != otherType) || this.cards.size() != other.cards.size()) {
+        if (!isComparable(other)) {
             throw new IllegalArgumentException(INCOMPARABLE);
         }
-        Rank myRank = this.getTopRank();
-        Rank otherRank = other.getTopRank();
-
-        return Integer.compare(myRank.getPriority(), otherRank.getPriority());
+        return compareTopRank(other);
     }
 
     private int compareBomb(Combination other) {
@@ -58,18 +49,22 @@ public class Combination {
             return -1;
         }
         // 길이 비교
-        if (myType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_STRAIGHT_FLUSH) {
-            if (this.cards.size() > other.cards.size()) {
-                return 1;
-            }
-            if (this.cards.size() < other.cards.size()) {
-                return -1;
-            }
+        if (this.cards.size() > other.cards.size()) {
+            return 1;
         }
-        return Integer.compare(
-                this.getTopRank().getPriority(),
-                other.getTopRank().getPriority()
-        );
+        if (this.cards.size() < other.cards.size()) {
+            return -1;
+        }
+        return compareTopRank(other);
+    }
+
+    private boolean isComparable(Combination other) {
+        return (combinationResult.getType() == other.combinationResult.getType())
+                && this.cards.size() == other.cards.size();
+    }
+
+    private int compareTopRank(Combination other) {
+        return Integer.compare(this.getTopRank().getPriority(), other.getTopRank().getPriority());
     }
 
     public CombinationType getCombinationType() {
