@@ -1,9 +1,5 @@
 package tichu.domain;
 
-import static tichu.enums.Rank.FIVE;
-import static tichu.enums.Rank.KING;
-import static tichu.enums.Rank.TEN;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,10 +9,11 @@ import tichu.enums.Team;
 public class Player {
     private static final String NOT_IN_MY_CARDS = "보유하지 않은 카드가 존재합니다.";
     private static final String CANNOT_CALLED_SMALL_TICHU = "스몰 티츄는 카드가 14장인 플레이어만 부를 수 있습니다.";
+
     private final String name;
-    private Team team;
-    private List<Card> myCards = new ArrayList<>();
-    private List<Card> acquiredCards = new ArrayList<>();
+    private final Team team;
+    private final List<Card> myCards = new ArrayList<>();
+    private final List<Card> acquiredCards = new ArrayList<>();
     private boolean isLargeTichu;
     private boolean isSmallTichu;
 
@@ -89,17 +86,17 @@ public class Player {
     private int calculateScore(List<Card> cards) {
         int score = 0;
         for (Card card : cards) {
-            if (card.getRank() == FIVE) {
-                score += 5;
+            if (card.getRank() == Rank.FIVE) {
+                score += Rank.FIVE.getScore();
             }
-            if (card.getRank() == TEN || card.getRank() == KING) {
-                score += 10;
+            if (card.getRank() == Rank.TEN || card.getRank() == Rank.KING) {
+                score += Rank.TEN.getScore();
             }
             if (card.isDragon()) {
-                score += 25;
+                score += Rank.DRAGON.getScore();
             }
             if (card.isPhoenix()) {
-                score -= 25;
+                score += Rank.PHOENIX.getScore();
             }
         }
         return score;
