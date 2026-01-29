@@ -205,7 +205,7 @@ public class Phase {
 
     public void useBomb(String name, List<Card> cards, Round round) {
         Player player = findPlayer(name);
-        Combination bombCombination = new Combination(cards);
+        Combination bombCombination = CombinationEvaluator.evaluate(cards);
         Rank calledRank = round.getCalledRank();
         validateBomb(bombCombination);
         lastCombination = bombCombination;

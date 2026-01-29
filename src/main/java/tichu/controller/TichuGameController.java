@@ -9,6 +9,7 @@ import java.util.Map;
 import tichu.domain.Card;
 import tichu.domain.CardParser;
 import tichu.domain.Combination;
+import tichu.domain.CombinationEvaluator;
 import tichu.domain.Phase;
 import tichu.domain.Player;
 import tichu.domain.Round;
@@ -340,7 +341,7 @@ public class TichuGameController {
             player.validateContainMyCard(card);
         }
 
-        Combination combination = new Combination(cards);
+        Combination combination = CombinationEvaluator.evaluate(cards);
         phase.evaluateCombination(player, combination, round);
 
         if (combination.hasMahjong()) {

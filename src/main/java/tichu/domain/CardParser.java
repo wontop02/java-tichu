@@ -12,14 +12,14 @@ public class CardParser {
     }
 
     public static List<Card> fromStringToCardList(String input) {
-        List<String> inputs = Arrays.asList(input.split(",", -1));
+        List<String> inputs = Arrays.asList(input.split(","));
         return inputs.stream()
                 .map(CardParser::fromString)
                 .toList();
     }
 
     public static Card fromString(String input) {
-        List<String> inputs = Arrays.asList(input.split("", -1));
+        List<String> inputs = Arrays.asList(input.split(""));
         Rank rank = Rank.valueOfRank(inputs.getFirst().toUpperCase());
         if (rank.isSpecial()) {
             return new Card(rank, Suit.NONE);
@@ -39,6 +39,9 @@ public class CardParser {
     public static String fromCard(Card card) {
         if (card.isSpecial()) {
             return card.getSpecialRank();
+        }
+        if (card.isSubstitutePhoenix()) {
+            return Rank.PHOENIX.getRank();
         }
         Rank rank = card.getRank();
         Suit suit = card.getSuit();

@@ -31,9 +31,9 @@ public class PhaseTest {
         players.get(1).addMyCards(List.of(new Card(Rank.PHOENIX, Suit.NONE)));
         players.get(2).addMyCards(List.of(new Card(Rank.ACE, Suit.DIAMOND)));
 
-        phase.evaluateCombination(players.get(0), new Combination(players.get(0).getMyCards()), round);
-        phase.evaluateCombination(players.get(1), new Combination(players.get(1).getMyCards()), round);
-        phase.evaluateCombination(players.get(2), new Combination(players.get(2).getMyCards()), round);
+        phase.evaluateCombination(players.get(0), CombinationEvaluator.evaluate(players.get(0).getMyCards()), round);
+        phase.evaluateCombination(players.get(1), CombinationEvaluator.evaluate(players.get(1).getMyCards()), round);
+        phase.evaluateCombination(players.get(2), CombinationEvaluator.evaluate(players.get(2).getMyCards()), round);
         assertEquals(new Card(Rank.ACE, Suit.DIAMOND), phase.getLastCombination().getTopCard());
     }
 
@@ -58,10 +58,11 @@ public class PhaseTest {
                 new Card(Rank.SEVEN, Suit.CLUB), new Card(Rank.SEVEN, Suit.SPADE)));
         players.get(2).addMyCards(List.of(new Card(Rank.ACE, Suit.DIAMOND)));
 
-        phase.evaluateCombination(players.get(0), new Combination(players.get(0).getMyCards()), round);
-        phase.evaluateCombination(players.get(1), new Combination(players.get(1).getMyCards()), round);
+        phase.evaluateCombination(players.get(0), CombinationEvaluator.evaluate(players.get(0).getMyCards()), round);
+        phase.evaluateCombination(players.get(1), CombinationEvaluator.evaluate(players.get(1).getMyCards()), round);
         assertThatThrownBy(
-                () -> phase.evaluateCombination(players.get(2), new Combination(players.get(2).getMyCards()), round))
+                () -> phase.evaluateCombination(players.get(2),
+                        CombinationEvaluator.evaluate(players.get(2).getMyCards()), round))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("이전 조합보다 낮거나 같은 조합을 낼 수 없습니다.");
     }
@@ -88,9 +89,9 @@ public class PhaseTest {
         players.get(2).addMyCards(List.of(
                 new Card(Rank.EIGHT, Suit.DIAMOND), new Card(Rank.EIGHT, Suit.HEART),
                 new Card(Rank.EIGHT, Suit.CLUB), new Card(Rank.EIGHT, Suit.SPADE)));
-        Combination player1combination = new Combination(players.get(0).getMyCards());
-        Combination player2combination = new Combination(players.get(1).getMyCards());
-        Combination player3combination = new Combination(players.get(2).getMyCards());
+        Combination player1combination = CombinationEvaluator.evaluate(players.get(0).getMyCards());
+        Combination player2combination = CombinationEvaluator.evaluate(players.get(1).getMyCards());
+        Combination player3combination = CombinationEvaluator.evaluate(players.get(2).getMyCards());
 
         phase.evaluateCombination(players.get(0), player1combination, round);
         phase.evaluateCombination(players.get(1), player2combination, round);

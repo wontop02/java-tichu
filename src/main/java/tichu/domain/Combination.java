@@ -1,9 +1,5 @@
 package tichu.domain;
 
-import static tichu.enums.CombinationType.BOMB_FOUR_CARD;
-import static tichu.enums.CombinationType.BOMB_STRAIGHT_FLUSH;
-import static tichu.enums.CombinationType.SINGLE;
-
 import java.util.List;
 import tichu.enums.CombinationType;
 import tichu.enums.Rank;
@@ -13,11 +9,13 @@ public class Combination {
     private static final String INCOMPARABLE = "서로 다른 조합은 비교할 수 없습니다.";
 
     private final List<Card> cards;
-    private final CombinationResult combinationResult;
+    private final CombinationType combinationType;
+    private final Card topCard;
 
-    public Combination(List<Card> cards) {
+    public Combination(List<Card> cards, CombinationType combinationType, Card topCard) {
         this.cards = List.copyOf(cards);
-        this.combinationResult = CombinationEvaluator.evaluate(cards);
+        this.combinationType = combinationType;
+        this.topCard = topCard;
     }
 
     // 조합 간 비교
@@ -39,13 +37,13 @@ public class Combination {
     }
 
     private int compareBomb(Combination other) {
-        CombinationType myType = this.combinationResult.getType();
-        CombinationType otherType = other.combinationResult.getType();
         // 폭탄 종류 비교
-        if (myType == BOMB_STRAIGHT_FLUSH && otherType == BOMB_FOUR_CARD) {
+        if (combinationType == CombinationType.BOMB_STRAIGHT_FLUSH
+                && other.combinationType == CombinationType.BOMB_FOUR_CARD) {
             return 1;
         }
-        if (myType == BOMB_FOUR_CARD && otherType == BOMB_STRAIGHT_FLUSH) {
+        if (combinationType == CombinationType.BOMB_FOUR_CARD
+                && other.combinationType == CombinationType.BOMB_STRAIGHT_FLUSH) {
             return -1;
         }
         // 길이 비교
@@ -59,16 +57,18 @@ public class Combination {
     }
 
     private boolean isComparable(Combination other) {
-        return (combinationResult.getType() == other.combinationResult.getType())
+        return (combinationType == other.combinationType)
                 && this.cards.size() == other.cards.size();
     }
 
     private int compareTopRank(Combination other) {
-        return Integer.compare(this.getTopRank().getPriority(), other.getTopRank().getPriority());
+        Rank myTopRank = topCard.getRank();
+        Rank otherTopRank = other.topCard.getRank();
+        return Integer.compare(myTopRank.getPriority(), otherTopRank.getPriority());
     }
 
     public CombinationType getCombinationType() {
-        return combinationResult.getType();
+        return combinationType;
     }
 
     public List<Card> getCards() {
@@ -76,16 +76,16 @@ public class Combination {
     }
 
     public Card getTopCard() {
-        return combinationResult.getTopCard();
+        return topCard;
     }
 
     public Rank getTopRank() {
-        return combinationResult.getTopRank();
+        return topCard.getRank();
     }
 
     public boolean isBomb() {
-        return (combinationResult.getType() == BOMB_FOUR_CARD)
-                || (combinationResult.getType() == BOMB_STRAIGHT_FLUSH);
+        return (combinationType == CombinationType.BOMB_FOUR_CARD)
+                || (combinationType == CombinationType.BOMB_STRAIGHT_FLUSH);
     }
 
     public boolean isDog() {
@@ -93,7 +93,7 @@ public class Combination {
     }
 
     public boolean isSinglePhoenix() {
-        if (combinationResult.getType() == SINGLE) {
+        if (combinationType == CombinationType.SINGLE) {
             return cards.getFirst().isPhoenix();
         }
         return false;

@@ -12,7 +12,7 @@ class CardParserTest {
     void 플레이어가_조합을_순서에_맞지_않게_입력해도_정렬된_상태로_반환한다() {
         String input = "5s,8s,3s,4s,7s,6s";
         List<Card> cards = CardParser.fromStringToCardList(input);
-        Combination combination = new Combination(cards);
+        Combination combination = CombinationEvaluator.evaluate(cards);
 
         List<String> printCards = CardParser.fromCardsToStringList(combination.getCards());
         List<String> assertCards = List.of("3s", "4s", "5s", "6s", "7s", "8s");

@@ -62,6 +62,10 @@ public class Card implements Comparable<Card> {
         return rank.isSpecial();
     }
 
+    public boolean isSubstitutePhoenix() {
+        return (!rank.isSpecial()) && (suit == Suit.NONE);
+    }
+
     public boolean isDog() {
         return rank == Rank.DOG;
     }

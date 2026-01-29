@@ -30,9 +30,9 @@ public class CombinationEvaluatorTest {
         InputValidator.validateCardInput(input);
         List<Card> cards = CardParser.fromStringToCardList(input);
 
-        CombinationResult result = CombinationEvaluator.evaluate(cards);
+        Combination result = CombinationEvaluator.evaluate(cards);
 
-        assertEquals(CombinationType.STRAIGHT, result.getType());
+        assertEquals(CombinationType.STRAIGHT, result.getCombinationType());
     }
 
     @DisplayName("봉이 포함된 카드 리스트에서 풀하우스를 찾는다.")
@@ -42,10 +42,10 @@ public class CombinationEvaluatorTest {
         InputValidator.validateCardInput(input);
         List<Card> cards = CardParser.fromStringToCardList(input);
 
-        CombinationResult result = CombinationEvaluator.evaluate(cards);
+        Combination result = CombinationEvaluator.evaluate(cards);
 
-        assertEquals(CombinationType.FULL_HOUSE, result.getType());
-        assertEquals(Rank.ACE, result.getTopCard().getRank());
+        assertEquals(CombinationType.FULL_HOUSE, result.getCombinationType());
+        assertEquals(Rank.ACE, result.getTopRank());
     }
 
     @DisplayName("스트레이트에서 봉이 가장 큰 숫자를 대체한 경우 대체된 등급을 저장한다.")
@@ -55,7 +55,7 @@ public class CombinationEvaluatorTest {
         InputValidator.validateCardInput(input);
         List<Card> cards = CardParser.fromStringToCardList(input);
 
-        CombinationResult result = CombinationEvaluator.evaluate(cards);
+        Combination result = CombinationEvaluator.evaluate(cards);
 
         assertEquals(Rank.EIGHT, result.getTopRank());
     }

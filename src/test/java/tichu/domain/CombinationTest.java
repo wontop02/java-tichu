@@ -18,8 +18,8 @@ public class CombinationTest {
         List<Card> cards = CardParser.fromStringToCardList(input);
         List<Card> cards2 = CardParser.fromStringToCardList(input2);
 
-        Combination combination = new Combination(cards);
-        Combination combination2 = new Combination(cards2);
+        Combination combination = CombinationEvaluator.evaluate(cards);
+        Combination combination2 = CombinationEvaluator.evaluate(cards2);
 
         int result = combination.compareTo(combination2);
         assertEquals(-1, result);
