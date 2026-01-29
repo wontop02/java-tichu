@@ -71,7 +71,11 @@ public class Combination {
         return combinationType;
     }
 
-    public List<Card> getCards() {
+    public int size() {
+        return cards.size();
+    }
+
+    public List<Card> cards() {
         return List.copyOf(cards);
     }
 

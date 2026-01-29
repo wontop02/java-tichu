@@ -70,7 +70,7 @@ public class Phase {
             throw new IllegalArgumentException(INCOMPARABLE);
         }
         // 카드 장수가 다른 경우
-        if (combination.getCards().size() != lastCombination.getCards().size()) {
+        if (combination.size() != lastCombination.size()) {
             throw new IllegalArgumentException(INCOMPARABLE);
         }
         if (combination.getCombinationType() == SINGLE
@@ -146,8 +146,8 @@ public class Phase {
         phaseWinner = player;
         passed = new boolean[4];
 
-        player.removeMyCards(combination.getCards());
-        phaseCards.addAll(combination.getCards());
+        player.removeMyCards(combination.cards());
+        phaseCards.addAll(combination.cards());
 
         nextTurn();
     }
@@ -216,8 +216,8 @@ public class Phase {
         phaseWinner = player;
         passed = new boolean[4];
 
-        player.removeMyCards(bombCombination.getCards());
-        phaseCards.addAll(bombCombination.getCards());
+        player.removeMyCards(bombCombination.cards());
+        phaseCards.addAll(bombCombination.cards());
 
         nextTurn();
     }
@@ -242,8 +242,8 @@ public class Phase {
     }
 
     public void useDog(Player player, Combination combination) {
-        player.removeMyCards(combination.getCards());
-        phaseCards.addAll(combination.getCards());
+        player.removeMyCards(combination.cards());
+        phaseCards.addAll(combination.cards());
         phaseWinner = player;
         throw new PhaseEndSignal(USE_DOG);
     }
