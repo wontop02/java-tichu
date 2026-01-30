@@ -19,12 +19,14 @@ public class CardParser {
     }
 
     public static Card fromString(String input) {
-        List<String> inputs = Arrays.asList(input.split(""));
-        Rank rank = Rank.valueOfRank(inputs.getFirst().toUpperCase());
-        if (rank.isSpecial()) {
+        if (input.length() <= 1) {
+            Rank rank = Rank.valueOfRank(input);
             return new Card(rank, Suit.NONE);
         }
-        Suit suit = Suit.valueOfSuit(inputs.getLast().toLowerCase());
+        String rankInput = input.substring(0, input.length() - 1).toUpperCase();
+        String suitInput = input.substring(input.length() - 1).toLowerCase();
+        Rank rank = Rank.valueOfRank(rankInput);
+        Suit suit = Suit.valueOfSuit(suitInput);
         return new Card(rank, suit);
     }
 
