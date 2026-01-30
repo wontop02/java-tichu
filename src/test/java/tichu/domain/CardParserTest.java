@@ -14,7 +14,7 @@ class CardParserTest {
         List<Card> cards = CardParser.fromStringToCardList(input);
         Combination combination = CombinationEvaluator.evaluate(cards);
 
-        List<String> printCards = CardParser.fromCardsToStringList(combination.getCards());
+        List<String> printCards = CardParser.fromCardsToStringList(combination.cards());
         List<String> assertCards = List.of("3s", "4s", "5s", "6s", "7s", "8s");
         assertEquals(assertCards, printCards);
     }

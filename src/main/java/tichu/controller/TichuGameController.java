@@ -283,7 +283,7 @@ public class TichuGameController {
             OutputView.printTableCombination(roundDto);
         }
         if (lastCombination != null) {
-            List<String> lastCards = CardParser.fromCardsToStringList(lastCombination.getCards());
+            List<String> lastCards = CardParser.fromCardsToStringList(lastCombination.cards());
             OutputView.printTableCombination(roundDto, phaseDto, lastCards);
         }
         // 현재 카드 개수 출력
