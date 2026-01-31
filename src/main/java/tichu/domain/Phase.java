@@ -126,6 +126,7 @@ public class Phase {
             if (phoenixIndex > 0) {
                 return evaluatePhoenixSingleCombination(phoenixIndex, newTopCard);
             }
+            return Integer.compare(getTopRank().getPriority(), newTopCard.getRankPriority());
         }
         return Integer.compare(lastTopCard.getRankPriority(), newTopCard.getRankPriority());
     }
