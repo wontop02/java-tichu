@@ -79,6 +79,6 @@ public class Card implements Comparable<Card> {
     }
 
     public boolean isPhoenix() {
-        return rank == Rank.PHOENIX;
+        return (rank == Rank.PHOENIX) || (!rank.isSpecial() && (suit == Suit.NONE));
     }
 }

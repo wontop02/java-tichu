@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import tichu.enums.Rank;
+import tichu.enums.Suit;
 import tichu.enums.Team;
 
 public class Player {
@@ -44,6 +45,9 @@ public class Player {
 
     public void removeMyCards(List<Card> cards) {
         myCards.removeAll(cards);
+        cards.stream()
+                .filter(Card::isPhoenix)
+                .findFirst().ifPresent(p -> myCards.remove(new Card(Rank.PHOENIX, Suit.NONE)));
     }
 
     public void resetStatus() {
