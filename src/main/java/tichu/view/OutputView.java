@@ -28,7 +28,6 @@ public class OutputView {
     private static final String PRINT_CURRENT_CALL = "**콜: %s**\n";
     private static final String PRINT_PHASE_START = "%d 페이즈를 시작합니다.\n";
     private static final String PRINT_ROUND_START = "%d 라운드를 시작합니다.\n";
-    private static final String PRINT_PHASE_END = "\n%s님이 이번 페이즈를 승리했습니다.\n";
     private static final String PRINT_CARD_COUNT_ZERO = "%s님이 모든 카드를 소진했습니다. ";
     private static final String PRINT_PLACE = "이번 라운드 %d등은 %s님입니다.\n";
     private static final String PRINT_ROUND_SCORE = "점수 계산이 완료되었습니다.\n[현재 라운드 점수]";
@@ -157,15 +156,11 @@ public class OutputView {
         System.out.printf(PRINT_PHASE_START, currentPhase);
     }
 
-    public static void printPhaseEnd(PlayerDto playerDto) {
-        System.out.printf(PRINT_PHASE_END, playerDto.getStatus());
-    }
-
     public static void printRoundStart(int currentRound) {
         System.out.printf(PRINT_ROUND_START, currentRound);
     }
 
-    public static void printRoundEnd(PlayerDto playerDto, int place) {
+    public static void printRoundEndPlayer(PlayerDto playerDto, int place) {
         if (place != 4) {
             System.out.printf(PRINT_CARD_COUNT_ZERO, playerDto.getStatus());
         }

@@ -1,7 +1,5 @@
 package tichu.controller;
 
-import static tichu.enums.Place.FOURTH;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,9 +15,11 @@ import tichu.domain.TichuGame;
 import tichu.dto.PhaseDto;
 import tichu.dto.PlayerDto;
 import tichu.dto.RoundDto;
+import tichu.enums.Place;
 import tichu.enums.Rank;
 import tichu.enums.Team;
 import tichu.exception.PhaseEndSignal;
+import tichu.exception.PhaseEndSignalWithDog;
 import tichu.exception.RoundEndSignal;
 import tichu.util.InputValidator;
 import tichu.view.InputView;
@@ -29,7 +29,6 @@ public class TichuGameController {
     private static final String LARGE = "라지";
     private static final String SMALL = "스몰";
     private static final String ALREADY_SELECTED_TRADE_CARD = "이전 참가자에게 준 카드를 선택할 수 없습니다.";
-    private static final String ROUND_END = "\n라운드를 종료합니다.";
 
     public TichuGameController() {
     }
@@ -207,37 +206,21 @@ public class TichuGameController {
                     }
                     OutputView.printPhaseStart(round.getPhaseNumber());
                     playPhase(round, phase);
-                    OutputView.printPhaseEnd(PlayerDto.from(phase.getPhaseWinner()));
-                    if (phase.winWithDragon()) {
-                        inputReceivePlayer(round, phase);
-                        continue;
-                    }
-                    round.endPhase(phase);
                 }
-                Player fourth = round.getPlayerPlace().get(FOURTH);
-                OutputView.printRoundEnd(PlayerDto.from(fourth), 4);
-
                 return round.calculateScore();
-            } catch (PhaseEndSignal e) {
-                try {
-                    Player dogPlayer = phase.getPhaseWinner();
-                    round.endPhaseWithDog(phase);
-                    if (dogPlayer.getCardCount() == 0) {
-                        round.checkRoundPlace(dogPlayer);
-                    }
-                    OutputView.printMessage(e.getMessage());
-                } catch (RoundEndSignal signal) {
-                    OutputView.printMessage(signal.getMessage());
-                    return round.calculateScore();
-                }
+            } catch (PhaseEndSignalWithDog e) {
+                round.endPhaseWithDog(phase);
+                OutputView.printMessage(e.getMessage());
             } catch (RoundEndSignal e) {
                 // 원투면 4등이 없을 수도 있음
                 if (phase != null) {
                     round.endPhase(phase);
                 }
-                if (round.getPlayerPlace().containsKey(FOURTH)) {
-                    Player fourth = round.getPlayerPlace().get(FOURTH);
-                    OutputView.printRoundEnd(PlayerDto.from(fourth), 4);
+                if (round.getPlayerPlace().containsKey(Place.FOURTH)) {
+                    Player third = round.getPlayerPlace().get(Place.THIRD);
+                    Player fourth = round.getPlayerPlace().get(Place.FOURTH);
+                    OutputView.printRoundEndPlayer(PlayerDto.from(third), 3);
+                    OutputView.printRoundEndPlayer(PlayerDto.from(fourth), 4);
                 }
                 OutputView.printMessage(e.getMessage());
                 return round.calculateScore();
@@ -261,16 +244,24 @@ public class TichuGameController {
     }
 
     private void playPhase(Round round, Phase phase) {
-        while (!phase.isPhaseEnd()) {
-            if (askSmallTichu(round)) {
-                inputTichuPlayers(round, SMALL);
-            }
-            if (askBomb(round, phase)) {
-                if (inputBomb(round, phase)) {
-                    continue;
+        try {
+            while (!phase.isPhaseEnd()) {
+                if (askSmallTichu(round)) {
+                    inputTichuPlayers(round, SMALL);
                 }
+                if (askBomb(round, phase)) {
+                    if (inputBomb(round, phase)) {
+                        continue;
+                    }
+                }
+                playTurn(round, phase);
             }
-            playTurn(round, phase);
+        } catch (PhaseEndSignal e) {
+            round.endPhase(phase);
+            OutputView.printMessage(e.getMessage());
+            if (phase.winWithDragon()) {
+                inputReceivePlayer(round, phase);
+            }
         }
     }
 
@@ -302,6 +293,9 @@ public class TichuGameController {
 
         Player player = phase.getCurrentPlayer();
         handleTurnInput(round, phase, player);
+        if (round.getPlayerPlace().containsValue(player)) {
+            OutputView.printRoundEndPlayer(PlayerDto.from(player), round.getPlace(player));
+        }
     }
 
     private void inputPassPlayer(Phase phase, Player player, Round round) {
@@ -317,15 +311,8 @@ public class TichuGameController {
                     return;
                 }
                 inputCombination(round, phase, player, input);
-
-                if (round.checkRoundPlace(player)) {
-                    int place = round.getPlace(player);
-                    OutputView.printRoundEnd(PlayerDto.from(player), place);
-                    if (place == 3) {
-                        round.isRoundEnd();
-                        throw new RoundEndSignal(ROUND_END);
-                    }
-                }
+                round.checkRoundPlace(player);
+                round.isRoundEnd();
                 return;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
@@ -377,14 +364,8 @@ public class TichuGameController {
                 InputValidator.validatePlayerName(name);
                 Player player = phase.findPlayer(name);
                 inputBombCard(round, phase, name, player);
-                if (round.checkRoundPlace(player)) {
-                    int place = round.getPlace(player);
-                    OutputView.printRoundEnd(PlayerDto.from(player), place);
-                    if (place == 3) {
-                        round.isRoundEnd();
-                        throw new RoundEndSignal(ROUND_END);
-                    }
-                }
+                round.checkRoundPlace(player);
+                round.isRoundEnd();
                 return true;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());

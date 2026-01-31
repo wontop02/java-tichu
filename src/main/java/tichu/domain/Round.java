@@ -1,11 +1,5 @@
 package tichu.domain;
 
-import static tichu.enums.Place.FIRST;
-import static tichu.enums.Place.FOURTH;
-import static tichu.enums.Place.SECOND;
-import static tichu.enums.Team.BLUE;
-import static tichu.enums.Team.RED;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +11,11 @@ import tichu.exception.RoundEndSignal;
 public class Round {
     private static final String ALREADY_CALLED_TICHU = "이미 티츄를 부른 플레이어가 존재합니다.";
     private static final String PLAYER_NOT_FOUND = "잘못된 플레이어 이름이 존재합니다.";
-    private static final String NOT_FOUND_HAS_MAJHONG = "1 카드를 가진 플레이어가 존재하지 않습니다.";
+    private static final String NOT_FOUND_HAS_MAHJONG = "1 카드를 가진 플레이어가 존재하지 않습니다.";
     private static final String NOT_FOUND_PLACE = "등수를 찾을 수 없습니다.";
     private static final String NOT_FOUND_NEXT_PLAYER = "페이즈 시작이 가능한 플레이어가 없습니다.";
     private static final String DOUBLE_WIN = "\n같은 팀이 1등과 2등을 차지해 라운드를 종료합니다.";
+    private static final String ROUND_END = "\n라운드를 종료합니다.";
 
     private final List<Player> players;
     private Rank calledRank = null;
@@ -28,7 +23,7 @@ public class Round {
     private final Map<Place, Player> playerPlace = new HashMap<>();
     private Player lastPhaseWinner;
 
-    private Deck deck;
+    private final Deck deck;
     private int phaseNumber = 0;
 
     public Round(List<Player> playersWithDirection) {
@@ -109,7 +104,7 @@ public class Round {
         return players.stream()
                 .filter(Player::hasMahjong)
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException(NOT_FOUND_HAS_MAJHONG));
+                .orElseThrow(() -> new IllegalStateException(NOT_FOUND_HAS_MAHJONG));
     }
 
     public void callRank(Rank rank) {
@@ -140,29 +135,16 @@ public class Round {
         names.forEach(this::findPlayerByName);
     }
 
-    public boolean checkRoundPlace(Player player) {
-        if (player.getCardCount() != 0) {
-            return false;
-        }
-        if (playerPlace.containsValue(player)) {
-            return false;
+    public void checkRoundPlace(Player player) {
+        if (player.getCardCount() != 0 || playerPlace.containsValue(player)) {
+            return;
         }
         for (Place place : Place.values()) {
             if (!playerPlace.containsKey(place)) {
                 playerPlace.put(place, player);
-                if (place == SECOND) {
-                    // 같은 팀이 1, 2등이면 강제 종료
-                    Player first = playerPlace.get(FIRST);
-                    Player second = playerPlace.get(SECOND);
-
-                    if (first.getTeam() == second.getTeam()) {
-                        throw new RoundEndSignal(DOUBLE_WIN);
-                    }
-                }
-                return true;
+                return;
             }
         }
-        return false;
     }
 
     public int getPlace(Player player) {
@@ -175,15 +157,17 @@ public class Round {
 
     public boolean isRoundEnd() {
         if (playerPlace.size() == 2) {
-            Player first = playerPlace.get(FIRST);
-            Player second = playerPlace.get(SECOND);
-            return first.getTeam() == second.getTeam();
+            Player first = playerPlace.get(Place.FIRST);
+            Player second = playerPlace.get(Place.SECOND);
+            if (first.getTeam() == second.getTeam()) {
+                throw new RoundEndSignal(DOUBLE_WIN);
+            }
         }
-        if (playerPlace.size() == 3 && !playerPlace.containsKey(FOURTH)) {
+        if (playerPlace.size() == 3 && !playerPlace.containsKey(Place.FOURTH)) {
             for (Player player : players) {
                 if (!playerPlace.containsValue(player)) {
-                    playerPlace.put(FOURTH, player);
-                    break;
+                    playerPlace.put(Place.FOURTH, player);
+                    throw new RoundEndSignal(ROUND_END);
                 }
             }
         }
@@ -192,7 +176,7 @@ public class Round {
 
     public Map<Team, Integer> calculateScore() {
         Map<Team, Integer> teamScore = calculateCardScore();
-        Player first = playerPlace.get(FIRST);
+        Player first = playerPlace.get(Place.FIRST);
 
         for (Player player : players) {
             if (player.getLargeTichuStatus()) {
@@ -212,18 +196,18 @@ public class Round {
 
     private Map<Team, Integer> calculateCardScore() {
         Map<Team, Integer> cardScore = new HashMap<>();
-        cardScore.put(RED, 0);
-        cardScore.put(BLUE, 0);
+        cardScore.put(Team.RED, 0);
+        cardScore.put(Team.BLUE, 0);
 
-        Player first = playerPlace.get(FIRST);
-        Player second = playerPlace.get(SECOND);
+        Player first = playerPlace.get(Place.FIRST);
+        Player second = playerPlace.get(Place.SECOND);
         if (first.getTeam() == second.getTeam()) {
             Team team = first.getTeam();
             cardScore.put(team, 200);
             return cardScore;
         }
 
-        Player fourth = playerPlace.get(FOURTH);
+        Player fourth = playerPlace.get(Place.FOURTH);
         giveFourthCards(cardScore, first, fourth);
 
         for (Player player : players) {
@@ -239,9 +223,9 @@ public class Round {
 
     private void giveFourthCards(Map<Team, Integer> cardScore, Player first, Player fourth) {
         Team fourthTeam = fourth.getTeam();
-        Team otherTeam = RED;
-        if (fourthTeam == RED) {
-            otherTeam = BLUE;
+        Team otherTeam = Team.RED;
+        if (fourthTeam == Team.RED) {
+            otherTeam = Team.BLUE;
         }
 
         // 1등에게 얻은 점수 줌
@@ -250,7 +234,7 @@ public class Round {
         // 다른 팀에게 마지막까지 들고 있던 카드 점수 줌
         int fourthHandScore = fourth.calculateMyCardScore();
         cardScore.put(otherTeam, cardScore.get(otherTeam) + fourthHandScore);
-        
+
         fourth.resetStatus();
     }
 

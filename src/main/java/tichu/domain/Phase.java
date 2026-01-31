@@ -6,6 +6,7 @@ import tichu.enums.CombinationType;
 import tichu.enums.Rank;
 import tichu.enums.Team;
 import tichu.exception.PhaseEndSignal;
+import tichu.exception.PhaseEndSignalWithDog;
 
 public class Phase {
     private static final String LOW_OR_SAME_COMBINATION = "이전 조합보다 낮거나 같은 조합을 낼 수 없습니다.";
@@ -18,6 +19,7 @@ public class Phase {
     private static final String CANNOT_USE_BOMB = "폭탄은 첫 조합으로 낼 수 없습니다.";
     private static final String TEAM_MEMBER_NOT_FOUND = "팀원을 찾을 수 없습니다.";
     private static final String USE_DOG = "개를 사용했습니다. 같은 팀원에게 선이 넘어갑니다.";
+    private static final String PHASE_END = "%s(%s)님이 이번 페이즈를 승리했습니다.";
 
     private final List<Player> players;
     private final List<Card> phaseCards = new ArrayList<>();
@@ -126,9 +128,8 @@ public class Phase {
             if (phoenixIndex > 0) {
                 return evaluatePhoenixSingleCombination(phoenixIndex, newTopCard);
             }
-            return Integer.compare(getTopRank().getPriority(), newTopCard.getRankPriority());
         }
-        return Integer.compare(lastTopCard.getRankPriority(), newTopCard.getRankPriority());
+        return Integer.compare(getTopRank().getPriority(), newTopCard.getRankPriority());
     }
 
     private int evaluatePhoenixSingleCombination(int phoenixIndex, Card newTopCard) {
@@ -212,7 +213,7 @@ public class Phase {
         player.removeMyCards(combination.cards());
         phaseCards.addAll(combination.cards());
         phaseWinner = player;
-        throw new PhaseEndSignal(USE_DOG);
+        throw new PhaseEndSignalWithDog(USE_DOG);
     }
 
     public boolean isPhaseEnd() {
@@ -222,7 +223,11 @@ public class Phase {
                 passCount++;
             }
         }
-        return passCount == 3;
+        if (passCount == 3) {
+            throw new PhaseEndSignal(
+                    String.format(PHASE_END, phaseWinner.getName(), phaseWinner.getTeam()).toLowerCase());
+        }
+        return false;
     }
 
     public void giveCardsToWinner() {
