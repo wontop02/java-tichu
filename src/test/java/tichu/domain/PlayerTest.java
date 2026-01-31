@@ -38,7 +38,7 @@ class PlayerTest {
         assertEquals(sortedCards, player.getMyCards());
     }
 
-    @DisplayName("카드 점수를 정확히 계산한다")
+    @DisplayName("카드 점수를 정확히 계산한다.")
     @Test
     void 카드_점수를_정확히_계산한다() {
         Player player = new Player("주영", Team.RED);
@@ -47,5 +47,18 @@ class PlayerTest {
                 new Card(Rank.KING, Suit.SPADE), new Card(Rank.DRAGON, Suit.NONE), new Card(Rank.PHOENIX, Suit.NONE)
         ));
         assertEquals(25, player.calculateMyCardScore());
+    }
+
+    @DisplayName("봉이 포함된 조합을 낸 후 손패에서 카드를 삭제한다.")
+    @Test
+    void 봉이_포함된_조합을_낸_후_손패에서_카드를_삭제한다() {
+        Player player = new Player("주영", Team.RED);
+        player.addMyCards(List.of(
+                new Card(Rank.TWO, Suit.SPADE), new Card(Rank.THREE, Suit.SPADE),
+                new Card(Rank.FOUR, Suit.SPADE), new Card(Rank.FIVE, Suit.SPADE), new Card(Rank.PHOENIX, Suit.NONE)
+        ));
+        Combination combination = CombinationEvaluator.evaluate(player.getMyCards());
+        player.removeMyCards(combination.cards());
+        assertEquals(0, player.getMyCards().size());
     }
 }
