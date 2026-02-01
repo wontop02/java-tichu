@@ -58,17 +58,15 @@ public class Round {
     }
 
     public void addSmallTichu(List<String> names) {
-        for (String name : names) {
-            Player player = findPlayerByName(name);
-            validateNotAlreadyCalledTichu(player);
-            player.callSmallTichu();
-        }
-    }
-
-    private void validateNotAlreadyCalledTichu(Player player) {
-        if (player.getLargeTichuStatus() || player.getSmallTichuStatus()) {
+        List<Player> players = names.stream()
+                .map(this::findPlayerByName)
+                .toList();
+        boolean existCalledTichuPlayer = players.stream()
+                .anyMatch(p -> p.getLargeTichuStatus() || p.getSmallTichuStatus());
+        if (existCalledTichuPlayer) {
             throw new IllegalArgumentException(ALREADY_CALLED_TICHU);
         }
+        players.forEach(Player::callSmallTichu);
     }
 
     public void tradeCards(List<List<Card>> received) {
