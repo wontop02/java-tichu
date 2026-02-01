@@ -12,6 +12,9 @@ import tichu.enums.Team;
 
 public class TichuGame {
     private static final int GOAL_SCORE = 1000;
+    private static final int MAX_PLAYER_NAME = 5;
+    private static final int NUMBER_OF_PLAYER = 4;
+
     private static final String INCORRECT_PLAYER_NUMBER = "참가자 수는 반드시 4명이어야 합니다.";
     private static final String INVALID_NAME_LENGTH = "참가자 이름은 최대 5글자로 입력 가능합니다.";
 
@@ -33,14 +36,14 @@ public class TichuGame {
     }
 
     private void validatePlayerCount(List<String> names) {
-        if (names.size() != 4) {
+        if (names.size() != NUMBER_OF_PLAYER) {
             throw new IllegalArgumentException(INCORRECT_PLAYER_NUMBER);
         }
     }
 
     private void validatePlayerName(List<String> names) {
         for (String name : names) {
-            if (name.length() > 5) {
+            if (name.length() > MAX_PLAYER_NAME) {
                 throw new IllegalArgumentException(INVALID_NAME_LENGTH);
             }
         }
@@ -50,7 +53,7 @@ public class TichuGame {
         List<String> playerNames = new ArrayList<>(names);
         Collections.shuffle(playerNames);
         List<Player> players = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < NUMBER_OF_PLAYER; i++) {
             String name = playerNames.get(i);
             if (i % 2 != 0) {
                 players.add(new Player(name, BLUE));

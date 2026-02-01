@@ -9,6 +9,11 @@ import tichu.enums.Team;
 import tichu.exception.RoundEndSignal;
 
 public class Round {
+    private static final int LARGE_TICHU_SCORE = 200;
+    private static final int SMALL_TICHU_SCORE = 100;
+    private static final int ONE_TWO_SCORE = 200;
+    private static final int NUMBER_OF_PLAYER = 4;
+
     private static final String ALREADY_CALLED_TICHU = "이미 티츄를 부른 플레이어가 존재합니다.";
     private static final String PLAYER_NOT_FOUND = "잘못된 플레이어 이름이 존재합니다.";
     private static final String NOT_FOUND_HAS_MAHJONG = "1 카드를 가진 플레이어가 존재하지 않습니다.";
@@ -67,7 +72,7 @@ public class Round {
     }
 
     public void tradeCards(List<List<Card>> received) {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < NUMBER_OF_PLAYER; i++) {
             players.get(i).addMyCards(received.get(i));
         }
     }
@@ -89,7 +94,7 @@ public class Round {
     private Player findNextNotEndPlayer(Player startPlayer) {
         int index = players.indexOf(startPlayer);
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < NUMBER_OF_PLAYER; i++) {
             index = (index + 1) % players.size();
             Player nextPlayer = players.get(index);
 
@@ -163,7 +168,7 @@ public class Round {
                 throw new RoundEndSignal(DOUBLE_WIN);
             }
         }
-        if (playerPlace.size() == 3 && !playerPlace.containsKey(Place.FOURTH)) {
+        if (playerPlace.size() == (NUMBER_OF_PLAYER - 1) && !playerPlace.containsKey(Place.FOURTH)) {
             for (Player player : players) {
                 if (!playerPlace.containsValue(player)) {
                     playerPlace.put(Place.FOURTH, player);
@@ -171,7 +176,7 @@ public class Round {
                 }
             }
         }
-        return playerPlace.size() == 4;
+        return playerPlace.size() == NUMBER_OF_PLAYER;
     }
 
     public Map<Team, Integer> calculateScore() {
@@ -180,12 +185,12 @@ public class Round {
 
         for (Player player : players) {
             if (player.getLargeTichuStatus()) {
-                applyTichuScore(teamScore, player, first, 200);
+                applyTichuScore(teamScore, player, first, LARGE_TICHU_SCORE);
                 continue;
             }
 
             if (player.getSmallTichuStatus()) {
-                applyTichuScore(teamScore, player, first, 100);
+                applyTichuScore(teamScore, player, first, SMALL_TICHU_SCORE);
             }
         }
         for (Player player : players) {
@@ -194,19 +199,33 @@ public class Round {
         return Map.copyOf(teamScore);
     }
 
+    private void applyTichuScore(Map<Team, Integer> teamScore, Player player, Player first, int point) {
+        Team team = player.getTeam();
+        if (player == first) {
+            teamScore.put(team, teamScore.get(team) + point);
+            return;
+        }
+        teamScore.put(team, teamScore.get(team) - point);
+    }
+
     private Map<Team, Integer> calculateCardScore() {
         Map<Team, Integer> cardScore = new HashMap<>();
         cardScore.put(Team.RED, 0);
         cardScore.put(Team.BLUE, 0);
 
+        // 원투일 때
         Player first = playerPlace.get(Place.FIRST);
         Player second = playerPlace.get(Place.SECOND);
         if (first.getTeam() == second.getTeam()) {
             Team team = first.getTeam();
-            cardScore.put(team, 200);
+            cardScore.put(team, ONE_TWO_SCORE);
             return cardScore;
         }
 
+        return calculateTeamScore(cardScore, first);
+    }
+
+    private Map<Team, Integer> calculateTeamScore(Map<Team, Integer> cardScore, Player first) {
         Player fourth = playerPlace.get(Place.FOURTH);
         giveFourthCards(cardScore, first, fourth);
 
@@ -227,7 +246,6 @@ public class Round {
         if (fourthTeam == Team.RED) {
             otherTeam = Team.BLUE;
         }
-
         // 1등에게 얻은 점수 줌
         first.addAcquireCards(fourth.getAcquiredCards());
 
@@ -236,15 +254,6 @@ public class Round {
         cardScore.put(otherTeam, cardScore.get(otherTeam) + fourthHandScore);
 
         fourth.resetStatus();
-    }
-
-    private void applyTichuScore(Map<Team, Integer> teamScore, Player player, Player first, int point) {
-        Team team = player.getTeam();
-        if (player == first) {
-            teamScore.put(team, teamScore.get(team) + point);
-            return;
-        }
-        teamScore.put(team, teamScore.get(team) - point);
     }
 
     private boolean isEndPlayer(Player player) {
