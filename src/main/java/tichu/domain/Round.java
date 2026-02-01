@@ -36,15 +36,7 @@ public class Round {
         deck = new Deck();
     }
 
-    public void dealCards8() {
-        dealCards(8);
-    }
-
-    public void dealCards6() {
-        dealCards(6);
-    }
-
-    private void dealCards(int count) {
+    public void dealCards(int count) {
         for (Player player : players) {
             player.addMyCards(deck.deal(count));
         }
@@ -166,7 +158,7 @@ public class Round {
                 throw new RoundEndSignal(DOUBLE_WIN);
             }
         }
-        if (playerPlace.size() == (NUMBER_OF_PLAYER - 1) && !playerPlace.containsKey(Place.FOURTH)) {
+        if ((playerPlace.size() == (NUMBER_OF_PLAYER - 1)) && !playerPlace.containsKey(Place.FOURTH)) {
             for (Player player : players) {
                 if (!playerPlace.containsValue(player)) {
                     playerPlace.put(Place.FOURTH, player);

@@ -21,6 +21,7 @@ import tichu.enums.Team;
 import tichu.exception.PhaseEndSignal;
 import tichu.exception.PhaseEndSignalWithDog;
 import tichu.exception.RoundEndSignal;
+import tichu.service.TichuGameService;
 import tichu.util.InputValidator;
 import tichu.view.InputView;
 import tichu.view.OutputView;
@@ -28,9 +29,17 @@ import tichu.view.OutputView;
 public class TichuGameController {
     private static final String LARGE = "라지";
     private static final String SMALL = "스몰";
-    private static final String ALREADY_SELECTED_TRADE_CARD = "이전 참가자에게 준 카드를 선택할 수 없습니다.";
+    private static final String PASS = "p";
+    private static final String CANCEL = "x";
+    private static final int NUMBER_OF_PLAYER = 4;
+    private static final int FIRST_CARD_COUNT = 8;
+    private static final int SECOND_CARD_COUNT = 6;
+    private static final int MIN_BOMB_CARD_COUNT = 4;
 
-    public TichuGameController() {
+    private final TichuGameService tichuGameService;
+
+    public TichuGameController(TichuGameService tichuGameService) {
+        this.tichuGameService = tichuGameService;
     }
 
     public void start() {
@@ -38,24 +47,7 @@ public class TichuGameController {
 
         while (!tichuGame.isEndTichuGame()) {
             Round round = tichuGame.startRound();
-            OutputView.printRoundStart(tichuGame.getRoundNumber());
-
-            round.dealCards8();
-            OutputView.printDealCards(8);
-            printAllPlayersCards(round);
-
-            inputTichuPlayers(round, LARGE);
-
-            round.dealCards6();
-            OutputView.printDealCards(6);
-            printAllPlayersCards(round);
-
-            inputTichuPlayers(round, SMALL);
-
-            OutputView.printTradeCards();
-            tradeCards(round);
-            OutputView.printTradeEnd();
-            printAllPlayersCards(round);
+            beforeRound(tichuGame, round);
 
             Map<Team, Integer> roundScore = playRound(round);
             OutputView.printRoundScore(roundScore);
@@ -67,6 +59,27 @@ public class TichuGameController {
         OutputView.printWinner(winner);
     }
 
+    private void beforeRound(TichuGame tichuGame, Round round) {
+        OutputView.printRoundStart(tichuGame.getRoundNumber());
+
+        round.dealCards(FIRST_CARD_COUNT);
+        OutputView.printDealCards(FIRST_CARD_COUNT);
+        printAllPlayersCards(round);
+
+        inputTichuPlayers(round, LARGE);
+
+        round.dealCards(SECOND_CARD_COUNT);
+        OutputView.printDealCards(SECOND_CARD_COUNT);
+        printAllPlayersCards(round);
+
+        inputTichuPlayers(round, SMALL);
+
+        OutputView.printTradeCards();
+        tradeCards(round);
+        OutputView.printTradeEnd();
+        printAllPlayersCards(round);
+    }
+
     // 참가자 입력
     public TichuGame inputPlayers() {
         while (true) {
@@ -76,25 +89,29 @@ public class TichuGameController {
                 List<String> names = Arrays.asList(input.split(",", -1));
 
                 TichuGame tichuGame = new TichuGame(names);
-
-                List<PlayerDto> playerDtos = tichuGame.getPlayersWithDirection().stream()
-                        .map(PlayerDto::from)
-                        .toList();
-
-                List<PlayerDto> red = playerDtos.stream()
-                        .filter(p -> p.getTeam() == Team.RED)
-                        .toList();
-
-                List<PlayerDto> blue = playerDtos.stream()
-                        .filter(p -> p.getTeam() == Team.BLUE)
-                        .toList();
-                OutputView.printTeam(red, blue);
-                OutputView.printDirection(playerDtos);
+                printTeamAndDirection(tichuGame);
                 return tichuGame;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
             }
         }
+    }
+
+    private void printTeamAndDirection(TichuGame tichuGame) {
+        List<PlayerDto> playerDtos = tichuGame.getPlayersWithDirection().stream()
+                .map(PlayerDto::from)
+                .toList();
+
+        List<PlayerDto> red = playerDtos.stream()
+                .filter(p -> p.getTeam() == Team.RED)
+                .toList();
+
+        List<PlayerDto> blue = playerDtos.stream()
+                .filter(p -> p.getTeam() == Team.BLUE)
+                .toList();
+
+        OutputView.printTeam(red, blue);
+        OutputView.printDirection(playerDtos);
     }
 
     // 플레이어 카드 출력
@@ -106,21 +123,17 @@ public class TichuGameController {
     }
 
     // 티츄 입력
-    public void inputTichuPlayers(Round round, String largeOrSmall) {
+    private void inputTichuPlayers(Round round, String largeOrSmall) {
         while (true) {
             try {
                 String input = InputView.requestTichuCallerName(largeOrSmall);
-                if (input.equals("x")) {
+                if (input.equals(CANCEL)) {
                     return;
                 }
                 InputValidator.validateTichuCallerName(input);
                 List<String> names = Arrays.asList(input.split(",", -1));
                 round.validatePlayerNames(names);
-                if (largeOrSmall.equals(LARGE)) {
-                    round.addLargeTichu(names);
-                    return;
-                }
-                round.addSmallTichu(names);
+                tichuGameService.addTichuPlayer(round, largeOrSmall, names);
                 return;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
@@ -128,29 +141,33 @@ public class TichuGameController {
         }
     }
 
-    public void tradeCards(Round round) {
+    private void tradeCards(Round round) {
         List<Player> players = round.getPlayers();
         List<List<Card>> received = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < NUMBER_OF_PLAYER; i++) {
             received.add(new ArrayList<>());
         }
         while (true) {
             try {
-                for (int i = 0; i < 4; i++) {
-                    Player fromPlayer = players.get(i);
-                    OutputView.printTurnPlayer(PlayerDto.from(fromPlayer));
-                    List<Card> toSend = new ArrayList<>();
-                    // 나를 제외한 참가자 수
-                    int[] nextDirections = {1, 2, 3};
-                    giveCards(players, received, i, fromPlayer, toSend, nextDirections);
-                    fromPlayer.removeMyCards(toSend);
-                }
-                round.tradeCards(received);
+                allTradeCards(round, players, received);
                 return;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
             }
         }
+    }
+
+    private void allTradeCards(Round round, List<Player> players, List<List<Card>> received) {
+        for (int i = 0; i < NUMBER_OF_PLAYER; i++) {
+            Player fromPlayer = players.get(i);
+            OutputView.printTurnPlayer(PlayerDto.from(fromPlayer));
+            List<Card> toSend = new ArrayList<>();
+            // 나를 제외한 참가자 수
+            int[] nextDirections = {1, 2, 3};
+            giveCards(players, received, i, fromPlayer, toSend, nextDirections);
+            fromPlayer.removeMyCards(toSend);
+        }
+        round.tradeCards(received);
     }
 
     private void giveCards(List<Player> players, List<List<Card>> received, int i, Player fromPlayer, List<Card> toSend,
@@ -173,22 +190,14 @@ public class TichuGameController {
                           int nextDirection) {
         while (true) {
             try {
-                int toIndex = (i + nextDirection) % 4;
+                int toIndex = (i + nextDirection) % NUMBER_OF_PLAYER;
                 Player toPlayer = players.get(toIndex);
                 PlayerDto toPlayerDto = PlayerDto.from(toPlayer);
 
                 String input = InputView.requestTradeCard(toPlayerDto);
                 InputValidator.validateCardInput(input);
 
-                //string을 카드로 변환
-                Card card = CardParser.fromString(input);
-                if (toSend.contains(card)) {
-                    throw new IllegalArgumentException(ALREADY_SELECTED_TRADE_CARD);
-                }
-
-                fromPlayer.validateContainMyCard(card);
-                toSend.add(card);
-                received.get(toIndex).add(card);
+                tichuGameService.giveCard(input, received, fromPlayer, toSend, toIndex);
                 return;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
@@ -202,33 +211,44 @@ public class TichuGameController {
             try {
                 while (!round.isRoundEnd()) {
                     phase = round.startPhase();
-                    if (round.getPhaseNumber() == 1) {
-                        OutputView.printFirstPlayer(PlayerDto.from(phase.getCurrentPlayer()));
-                    }
-                    OutputView.printPhaseStart(round.getPhaseNumber());
-                    playPhase(round, phase);
+                    PlayOneRound(round, phase);
                 }
-                return round.calculateScore();
             } catch (PhaseEndSignalWithDog e) {
-                round.endPhaseWithDog(phase);
-                OutputView.printMessage(e.getMessage());
+                endPhaseWithDog(round, phase, e);
             } catch (RoundEndSignal e) {
-                // 원투면 4등이 없을 수도 있음
-                if (phase != null) {
-                    round.endPhase(phase);
-                }
-                if (round.getPlayerPlace().containsKey(Place.FOURTH)) {
-                    Player third = round.getPlayerPlace().get(Place.THIRD);
-                    Player fourth = round.getPlayerPlace().get(Place.FOURTH);
-                    OutputView.printRoundEndPlayer(PlayerDto.from(third), 3);
-                    OutputView.printRoundEndPlayer(PlayerDto.from(fourth), 4);
-                }
-                OutputView.printMessage(e.getMessage());
-                return round.calculateScore();
+                return endRound(round, phase, e);
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
             }
         }
+    }
+
+    private void endPhaseWithDog(Round round, Phase phase, PhaseEndSignalWithDog e) {
+        round.endPhaseWithDog(phase);
+        OutputView.printMessage(e.getMessage());
+        Player useDogPlayer = phase.getPhaseWinner();
+        printRoundEndPlayer(round, useDogPlayer);
+    }
+
+    private void PlayOneRound(Round round, Phase phase) {
+        if (round.getPhaseNumber() == 1) {
+            OutputView.printFirstPlayer(PlayerDto.from(phase.getCurrentPlayer()));
+        }
+        OutputView.printPhaseStart(round.getPhaseNumber());
+        playPhase(round, phase);
+    }
+
+    private Map<Team, Integer> endRound(Round round, Phase phase, RoundEndSignal e) {
+        if (phase != null) {
+            round.endPhase(phase);
+        }
+        // 원투면 4등이 없을 수도 있음
+        if (round.getPlayerPlace().containsKey(Place.FOURTH)) {
+            Player fourth = round.getPlayerPlace().get(Place.FOURTH);
+            OutputView.printRoundEndPlayer(PlayerDto.from(fourth), Place.FOURTH.getPlace());
+        }
+        OutputView.printMessage(e.getMessage());
+        return round.calculateScore();
     }
 
     private String inputReceivePlayer(Round round, Phase phase) {
@@ -258,11 +278,15 @@ public class TichuGameController {
                 playTurn(round, phase);
             }
         } catch (PhaseEndSignal e) {
-            round.endPhase(phase);
-            OutputView.printMessage(e.getMessage());
-            if (phase.winWithDragon()) {
-                inputReceivePlayer(round, phase);
-            }
+            endPhase(round, phase, e);
+        }
+    }
+
+    private void endPhase(Round round, Phase phase, PhaseEndSignal e) {
+        round.endPhase(phase);
+        OutputView.printMessage(e.getMessage());
+        if (phase.winWithDragon()) {
+            inputReceivePlayer(round, phase);
         }
     }
 
@@ -271,6 +295,19 @@ public class TichuGameController {
         PhaseDto phaseDto = PhaseDto.from(phase);
         RoundDto roundDto = RoundDto.from(round);
         // 테이블 조합 출력
+        printTableCombination(lastCombination, roundDto, phaseDto);
+        // 현재 카드 개수 출력
+        List<PlayerDto> dtos = round.getPlayers().stream()
+                .map(PlayerDto::from)
+                .toList();
+        OutputView.printAllCardCount(dtos);
+        // 현재 플레이어 카드 출력
+        PlayerDto playerDto = PlayerDto.from(phase.getCurrentPlayer());
+        OutputView.printPlayerCards(playerDto);
+    }
+
+    private void printTableCombination(Combination lastCombination, RoundDto roundDto, PhaseDto phaseDto) {
+        // 테이블 조합 출력
         if (lastCombination == null) {
             OutputView.printTableCombination(roundDto);
         }
@@ -278,15 +315,6 @@ public class TichuGameController {
             List<String> lastCards = CardParser.fromCardsToStringList(lastCombination.cards());
             OutputView.printTableCombination(roundDto, phaseDto, lastCards);
         }
-        // 현재 카드 개수 출력
-        List<PlayerDto> dtos = round.getPlayers().stream()
-                .map(PlayerDto::from)
-                .toList();
-        OutputView.printAllCardCount(dtos);
-
-        // 현재 플레이어 카드 출력
-        PlayerDto playerDto = PlayerDto.from(phase.getCurrentPlayer());
-        OutputView.printPlayerCards(playerDto);
     }
 
     private void playTurn(Round round, Phase phase) {
@@ -294,9 +322,6 @@ public class TichuGameController {
 
         Player player = phase.getCurrentPlayer();
         handleTurnInput(round, phase, player);
-        if (round.getPlayerPlace().containsValue(player)) {
-            OutputView.printRoundEndPlayer(PlayerDto.from(player), round.getPlace(player));
-        }
     }
 
     private void inputPassPlayer(Phase phase, Player player, Round round) {
@@ -307,12 +332,12 @@ public class TichuGameController {
         while (true) {
             try {
                 String input = InputView.requestCombination();
-                if (input.equals("p")) {
+                if (input.equals(PASS)) {
                     inputPassPlayer(phase, player, round);
                     return;
                 }
                 inputCombination(round, phase, player, input);
-                round.checkRoundPlace(player);
+                printRoundEndPlayer(round, player);
                 round.isRoundEnd();
                 return;
             } catch (IllegalArgumentException e) {
@@ -323,7 +348,6 @@ public class TichuGameController {
 
     private void inputCombination(Round round, Phase phase, Player player, String input) {
         InputValidator.validateCardInput(input);
-
         List<Card> cards = CardParser.fromStringToCardList(input);
         for (Card card : cards) {
             player.validateContainMyCard(card);
@@ -331,7 +355,6 @@ public class TichuGameController {
 
         Combination combination = CombinationEvaluator.evaluate(cards);
         phase.evaluateCombination(player, combination, round);
-
         if (combination.hasMahjong()) {
             inputCallRank(round);
         }
@@ -341,7 +364,7 @@ public class TichuGameController {
         while (true) {
             try {
                 String input = InputView.requestCallRank();
-                if (input.equals("x")) {
+                if (input.equals(CANCEL)) {
                     return;
                 }
                 InputValidator.validateCallRank(input);
@@ -359,13 +382,13 @@ public class TichuGameController {
         while (true) {
             try {
                 String name = InputView.requestBombPlayer();
-                if (name.equals("x")) {
+                if (name.equals(CANCEL)) {
                     return false;
                 }
                 InputValidator.validatePlayerName(name);
                 Player player = phase.findPlayer(name);
                 inputBombCard(round, phase, name, player);
-                round.checkRoundPlace(player);
+                printRoundEndPlayer(round, player);
                 round.isRoundEnd();
                 return true;
             } catch (IllegalArgumentException e) {
@@ -377,18 +400,13 @@ public class TichuGameController {
     private void inputBombCard(Round round, Phase phase, String name, Player player) {
         while (true) {
             try {
-                PlayerDto playerDto = PlayerDto.from(player);
-                OutputView.printPlayerAllCards(playerDto);
+                OutputView.printPlayerAllCards(PlayerDto.from(player));
                 String bomb = InputView.requestBomb();
-                if (bomb.equals("x")) {
+                if (bomb.equals(CANCEL)) {
                     return;
                 }
                 InputValidator.validateCardInput(bomb);
-                List<Card> cards = CardParser.fromStringToCardList(bomb);
-                for (Card card : cards) {
-                    player.validateContainMyCard(card);
-                }
-                phase.useBomb(name, cards, round);
+                tichuGameService.useBomb(bomb, player, round, phase, name);
                 return;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
@@ -396,15 +414,22 @@ public class TichuGameController {
         }
     }
 
+    private void printRoundEndPlayer(Round round, Player player) {
+        round.checkRoundPlace(player);
+        if (round.getPlayerPlace().containsValue(player)) {
+            OutputView.printRoundEndPlayer(PlayerDto.from(player), round.getPlace(player));
+        }
+    }
+
     private boolean askSmallTichu(Round round) {
         return round.getPlayers().stream()
                 .anyMatch(player ->
-                        !player.isCalledTichu() && player.getCardCount() == 14);
+                        !player.isCalledTichu() && player.getCardCount() == FIRST_CARD_COUNT + SECOND_CARD_COUNT);
     }
 
     private boolean askBomb(Round round, Phase phase) {
         return (round.getPlayers().stream()
-                .anyMatch(player -> player.getCardCount() >= 4))
+                .anyMatch(player -> player.getCardCount() >= MIN_BOMB_CARD_COUNT))
                 && (phase.getLastCombination() != null);
     }
 }
