@@ -23,8 +23,8 @@ class RoundTest {
         Round round = game.startRound();
         List<Player> players = round.getPlayers();
 
-        round.dealCards8();
-        round.dealCards6();
+        round.dealCards(8);
+        round.dealCards(6);
 
         List<Card> cards = new ArrayList<>();
         cards.addAll(players.get(0).getMyCards());
@@ -42,11 +42,11 @@ class RoundTest {
         List<String> names = List.of("영희", "주영", "민지", "철수");
         TichuGame game = new TichuGame(names);
         Round round = game.startRound();
-        round.dealCards6();
+        round.dealCards(6);
 
         List<String> tichuPlayer = List.of("주영");
         round.addLargeTichu(tichuPlayer);
-        round.dealCards8();
+        round.dealCards(8);
 
         assertThatThrownBy(() -> round.addSmallTichu(tichuPlayer))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -73,8 +73,9 @@ class RoundTest {
         Player player1 = new Player("영희", Team.RED);
         Player player2 = new Player("주영", Team.BLUE);
         Player player3 = new Player("민지", Team.RED);
+        Player player4 = new Player("철수", Team.RED);
 
-        List<Player> players = List.of(player1, player2, player3);
+        List<Player> players = List.of(player1, player2, player3, player4);
 
         Round round = new Round(players);
         round.checkRoundPlace(player1);
@@ -92,8 +93,9 @@ class RoundTest {
         Player player1 = new Player("영희", Team.RED);
         Player player2 = new Player("주영", Team.BLUE);
         Player player3 = new Player("민지", Team.RED);
+        Player player4 = new Player("철수", Team.RED);
 
-        List<Player> players = List.of(player1, player2, player3);
+        List<Player> players = List.of(player1, player2, player3, player4);
         player2.addMyCards(List.of(new Card(Rank.TWO, Suit.CLUB)));
 
         Round round = new Round(players);
