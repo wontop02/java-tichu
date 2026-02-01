@@ -51,26 +51,21 @@ public class OutputView {
         System.out.println(message);
     }
 
-    public static void printTeamAndDirection(
-            List<PlayerDto> playerDtos,
-            List<PlayerDto> red,
-            List<PlayerDto> blue
-    ) {
+    public static void printTeam(List<PlayerDto> red, List<PlayerDto> blue) {
         System.out.println(PRINT_DECIDE_TEAM);
         System.out.print(PRINT_RED_TEAM);
         printPlayerNames(red);
         System.out.print(PRINT_BLUE_TEAM);
         printPlayerNames(blue);
+    }
 
-        String direction = "";
-        for (int i = 0; i < playerDtos.size(); i++) {
-            direction = direction.concat(playerDtos.get(i).getName());
-            if (i < playerDtos.size() - 1) {
-                direction = direction.concat(PRINT_ARROW);
-            }
-        }
-        direction = direction.concat(PRINT_ARROW);
-        direction = direction.concat(playerDtos.get(0).getName());
+    public static void printDirection(
+            List<PlayerDto> playerDtos
+    ) {
+        List<String> playerNames = playerDtos.stream()
+                .map(PlayerDto::getName)
+                .toList();
+        String direction = String.join(PRINT_ARROW, playerNames);
         System.out.printf(PRINT_ALERT_DIRECTION, direction);
         System.out.println();
     }
@@ -136,10 +131,8 @@ public class OutputView {
             System.out.println(PRINT_NONE_TABLE_CARD);
             return;
         }
-        System.out.printf(LAST_COMBINATION_FORMAT,
-                phaseDto.getCurrentWinner().getStatus(),
-                phaseDto.getLastCombinationTopRank(),
-                phaseDto.getLastCombinationType());
+        System.out.printf(LAST_COMBINATION_FORMAT, phaseDto.getCurrentWinner().getStatus(),
+                phaseDto.getLastCombinationTopRank(), phaseDto.getLastCombinationType());
         printCards(cards);
         System.out.println();
     }

@@ -88,7 +88,8 @@ public class TichuGameController {
                 List<PlayerDto> blue = playerDtos.stream()
                         .filter(p -> p.getTeam() == Team.BLUE)
                         .toList();
-                OutputView.printTeamAndDirection(playerDtos, red, blue);
+                OutputView.printTeam(red, blue);
+                OutputView.printDirection(playerDtos);
                 return tichuGame;
             } catch (IllegalArgumentException e) {
                 OutputView.printErrorMessage(e.getMessage());
